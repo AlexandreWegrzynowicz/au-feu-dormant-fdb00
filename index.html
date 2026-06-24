@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Au Feu Dormant | Portail RP fantasy communautaire</title>
+  <meta name="description" content="Portail RP fantasy communautaire : incarnez votre personnage, rencontrez d'autres voyageurs, suivez les quêtes et rejoignez l'aventure via Discord.">
+  <meta name="keywords" content="Au Feu Dormant, portail RP fantasy, auberge RP, quêtes RP, voyageurs RP, réputation RP, roleplay Warcraft, serveur RP Warcraft">
+  <meta property="og:title" content="Au Feu Dormant">
+  <meta property="og:description" content="Entrez dans une auberge où chaque voyageur apporte son histoire.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Au Feu Dormant">
+  <meta property="og:image" content="assets/og-image.svg">
+  <meta name="theme-color" content="#120806">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#accueil" aria-label="Retour à l'accueil">
+      <span class="brand-mark">AFD</span>
+      <span>Au Feu Dormant</span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
+    <nav id="site-nav" class="site-nav" aria-label="Navigation principale">
+      <a href="#accueil">Accueil</a>
+      <a href="#aventures">Aventures</a>
+      <a href="#voyageurs">Voyageurs</a>
+      <a href="#quetes">Contrats</a>
+      <a href="#rejoindre">Rejoindre</a>
+      <a class="nav-cta" href="https://discord.gg/atbfrdFfNr" target="_blank" rel="noopener">Salle commune</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="accueil" class="hero">
+      <div class="hero-art" aria-hidden="true">
+        <div class="lantern"><span></span></div>
+        <div class="ember ember-one"></div>
+        <div class="ember ember-two"></div>
+        <div class="paper paper-one"></div>
+      </div>
+      <div class="hero-content">
+        <p class="eyebrow">Portail RP fantasy communautaire</p>
+        <h1>Au Feu Dormant</h1>
+        <p class="hero-lead">Entrez dans une auberge où chaque voyageur apporte son histoire.</p>
+        <div class="hero-promise" aria-label="Promesse du portail">
+          <p>Incarnez votre personnage.</p>
+          <p>Rencontrez d'autres aventuriers.</p>
+          <p>Participez à des quêtes.</p>
+          <p>Laissez votre nom entrer dans les chroniques.</p>
+        </div>
+        <div class="hero-actions">
+          <a class="button primary" href="https://discord.gg/atbfrdFfNr" target="_blank" rel="noopener">Pousser la porte</a>
+          <a class="button secondary" href="#quetes">Voir les quêtes</a>
+        </div>
+        <p class="discord-note">La porte mène à la salle commune</p>
+        <p class="signature">Une taverne est un décor. Une aventure est une promesse. Votre personnage est le véritable héros.</p>
+      </div>
+      <aside class="hero-panel" aria-label="Ce qui vous attend">
+        <h2>Ce qui vous attend</h2>
+        <ul>
+          <li>Des voyageurs venus des quatre horizons.</li>
+          <li>Des contrats affichés près du comptoir.</li>
+          <li>Des rumeurs qui circulent plus vite que la bière.</li>
+          <li>Une porte ouverte vers une nouvelle histoire.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section id="aventures" class="section adventure-band">
+      <div class="section-heading">
+        <p class="eyebrow">Aventures</p>
+        <h2>Chaque voyageur apporte une histoire. Chaque histoire laisse une trace.</h2>
+        <p>Au Feu Dormant, les rencontres deviennent des pistes, les pistes deviennent des récits, et les récits finissent tôt ou tard dans les chroniques.</p>
+      </div>
+      <div class="feature-grid">
+        <article>
+          <span class="icon">01</span>
+          <h3>Trouver sa place</h3>
+          <p>Mercenaire, marin, marchand, mage, soigneur, hors-la-loi ou érudit : chaque voyageur peut trouver une chaise, une dette ou une piste à suivre.</p>
+        </article>
+        <article>
+          <span class="icon">02</span>
+          <h3>Croiser d'autres voyageurs</h3>
+          <p>Autour du feu, on trouve des alliés, des rivaux, des clients, des compagnons et parfois des ennuis très bien habillés.</p>
+        </article>
+        <article>
+          <span class="icon">03</span>
+          <h3>Laisser son nom dans les chroniques</h3>
+          <p>Réputation, notoriété, rumeurs et contrats gardent la mémoire de ceux qui ont fait parler d'eux dans la salle commune.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="voyageurs" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Voyageurs</p>
+        <h2>Présentez les personnages, pas seulement le décor.</h2>
+        <p>Chaque carte donne une accroche RP rapide : qui est là, ce qu'on raconte, et quelle réputation précède le personnage.</p>
+      </div>
+      <label class="search-control">Rechercher un personnage
+        <input id="traveler-search" type="search" placeholder="Nom, faction, race, métier, rumeur...">
+      </label>
+      <div class="traveler-grid" id="traveler-grid"></div>
+      <button id="toggle-travelers" class="button secondary reveal-button" type="button" hidden>Dérouler le registre</button>
+    </section>
+
+    <section id="voyageur-detail" class="section traveler-detail" hidden></section>
+
+    <section id="fiche" class="section split-section">
+      <div>
+        <p class="eyebrow">Registre des voyageurs</p>
+        <h2>Inscrivez votre nom au registre.</h2>
+        <p>Présentez votre voyageur comme on le ferait au comptoir : un nom, une origine, une raison d'entrer, et la rumeur que l'on murmurera peut-être après son passage.</p>
+      </div>
+      <form id="traveler-form" class="form-panel">
+        <label>Nom du personnage
+          <input name="name" required maxlength="48" placeholder="Ex. Maëlys Cornebrume">
+        </label>
+        <label>Faction
+          <select name="faction">
+            <option>Alliance</option>
+            <option>Horde</option>
+            <option>Neutre</option>
+            <option>Sans allégeance</option>
+          </select>
+        </label>
+        <label>Peuple
+          <input name="people" list="people-list" placeholder="Humain, Orc, Pandaren...">
+        </label>
+        <datalist id="people-list">
+          <option>Humain</option><option>Nain</option><option>Gnome</option><option>Elfe de la Nuit</option><option>Draeneï</option><option>Worgen</option><option>Pandaren</option><option>Orc</option><option>Tauren</option><option>Troll</option><option>Réprouvé</option><option>Elfe de Sang</option><option>Gobelin</option>
+        </datalist>
+        <label>Situation actuelle
+          <select name="situation">
+            <option>Aventurier</option><option>Mercenaire</option><option>Soldat</option><option>Marin</option><option>Marchand</option><option>Artisan</option><option>Forgeron</option><option>Alchimiste</option><option>Chasseur</option><option>Chasseur de primes</option><option>Mage</option><option>Prêtre</option><option>Soigneur</option><option>Érudit</option><option>Noble</option><option>Explorateur</option><option>Contrebandier</option><option>Hors-la-loi</option><option>Sans activité connue</option><option>Autre</option>
+          </select>
+        </label>
+        <label>Ce qui vous amène au Feu Dormant
+          <select name="reason">
+            <option>Chercher du travail</option><option>Trouver des compagnons</option><option>Suivre une rumeur</option><option>Rejoindre une expédition</option><option>Chercher quelqu'un</option><option>Livrer un message</option><option>Trouver refuge</option><option>Régler une dette</option><option>Commencer une nouvelle vie</option><option>Autre</option>
+          </select>
+        </label>
+        <label>RP recherché
+          <select name="rp">
+            <option>Aventure</option><option>Commerce</option><option>Enquête</option><option>Diplomatie</option><option>Intrigue</option><option>Exploration</option><option>Conflit</option><option>Vie de taverne</option><option>Libre</option>
+          </select>
+        </label>
+        <label>Rumeur publique
+          <textarea name="rumor" maxlength="180" placeholder="Une phrase que les autres peuvent entendre à son sujet."></textarea>
+        </label>
+        <button class="button primary" type="submit">Inscrire au registre</button>
+      </form>
+      <aside class="generated-card" id="generated-card" aria-live="polite">
+        <p class="eyebrow">Page du registre</p>
+        <h3>Aucun nom couché sur le papier</h3>
+        <p>Remplissez le registre pour voir apparaître la fiche de votre voyageur.</p>
+      </aside>
+    </section>
+
+    <section id="quetes" class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Tableau des contrats</p>
+        <h2>Choisissez une piste, puis venez la jouer.</h2>
+      </div>
+      <div class="quest-toolbar" aria-label="Filtrer les quêtes">
+        <button class="filter active" type="button" data-filter="all">Toutes</button>
+        <button class="filter" type="button" data-filter="disponible">Disponibles</button>
+        <button class="filter" type="button" data-filter="encours">En cours</button>
+        <button class="filter" type="button" data-filter="terminee">Terminées</button>
+        <button class="filter" type="button" data-filter="archivee">Archivées</button>
+      </div>
+      <div class="quest-grid" id="quest-grid"></div>
+      <button id="toggle-quests" class="button secondary reveal-button" type="button" hidden>Dérouler le tableau</button>
+    </section>
+
+    <section class="section split-section">
+      <div>
+        <p class="eyebrow">Chroniques</p>
+        <h2>Les histoires doivent rester vivantes, pas devenir un musée.</h2>
+        <p>Les chroniques résument ce qui compte : quêtes terminées, changements de réputation, rumeurs confirmées, noms qui commencent à circuler.</p>
+      </div>
+      <aside class="notice-board">
+        <h3>Ce que l'on murmure près du feu</h3>
+        <ul id="rumor-list">
+          <li>Une carte humide aurait été payée trois fois trop cher.</li>
+          <li>Hector refuse de servir un client que personne ne voit.</li>
+          <li>La lanterne du perron ne s'éteint plus depuis trois nuits.</li>
+        </ul>
+        <button id="toggle-rumors" class="button secondary reveal-button" type="button" hidden>Écouter les autres murmures</button>
+      </aside>
+    </section>
+
+    <section id="rejoindre" class="section join">
+      <p class="eyebrow">Pousser la porte</p>
+      <h2>Votre personnage attend une table.</h2>
+      <p>La salle commune s'organise autour du feu. C'est là que les voyageurs se retrouvent, prennent des nouvelles et répondent aux appels d'Hector.</p>
+      <a class="button primary large" href="https://discord.gg/atbfrdFfNr" target="_blank" rel="noopener">Entrer dans la salle commune</a>
+      <p class="small-note">La porte s'ouvre par l'invitation Discord officielle.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Au Feu Dormant — portail RP fantasy non officiel. Aucun asset Blizzard n'est utilisé.</p>
+    <a href="#accueil">Retour au feu</a>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

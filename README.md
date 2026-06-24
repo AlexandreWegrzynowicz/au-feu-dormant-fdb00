@@ -13,12 +13,10 @@ Version 1.0 publique.
 ```text
 .
 |-- index.html
-|-- mj.html
 |-- css/
 |   `-- styles.css
 |-- js/
-|   |-- script.js
-|   `-- mj.js
+|   `-- script.js
 |-- assets/
 |   |-- favicon.svg
 |   `-- og-image.svg
@@ -32,7 +30,7 @@ Version 1.0 publique.
 ## Pages
 
 - `index.html` : portail public.
-- `mj.html` : registre MJ local, non securise pour une vraie production.
+- La console MJ reste locale et n'est pas publiee sur GitHub Pages.
 
 ## Mise en ligne avec GitHub Pages
 
@@ -63,13 +61,14 @@ GitHub Pages republie automatiquement le site apres le push.
 
 ## Console MJ
 
-La console MJ utilise `localStorage`.
+La console MJ du prototype local utilise `localStorage`.
 
 Cela signifie :
 
 - les donnees restent dans le navigateur utilise ;
 - elles ne sont pas partagees entre appareils ;
-- elles ne sont pas une securite de production ;
+- elle ne doit pas etre exposee telle quelle sur un depot public ;
+- elle ne constitue pas une securite de production ;
 - aucune donnee sensible ne doit y etre stockee.
 
 La future version 2 pourra brancher :

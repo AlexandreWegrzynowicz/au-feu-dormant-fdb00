@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <radialGradient id="fire" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#8f1f20"/>
+      <stop offset="45%" stop-color="#4b2816"/>
+      <stop offset="100%" stop-color="#080504"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" x2="1">
+      <stop offset="0%" stop-color="#f7c65a"/>
+      <stop offset="100%" stop-color="#b76b1e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#080504"/>
+  <rect x="54" y="54" width="1092" height="522" fill="url(#fire)" stroke="#8c5a1d" stroke-width="4"/>
+  <rect x="86" y="86" width="1028" height="458" fill="none" stroke="#f2b544" stroke-width="2" opacity=".75"/>
+  <text x="600" y="230" text-anchor="middle" font-family="Georgia, serif" font-size="96" font-weight="700" fill="url(#gold)">Au Feu Dormant</text>
+  <text x="600" y="320" text-anchor="middle" font-family="Georgia, serif" font-size="38" fill="#ead7ad">Entrez dans une auberge où chaque voyageur apporte son histoire.</text>
+  <text x="600" y="420" text-anchor="middle" font-family="Georgia, serif" font-size="34" fill="#f2b544">Contrats • Voyageurs • Murmures • Chroniques</text>
+</svg>
