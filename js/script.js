@@ -417,6 +417,7 @@ async function copyText(text) {
 }
 
 async function downloadTravelerJpeg(traveler) {
+  return downloadTravelerJpegV2(traveler);
   const canvas = document.createElement("canvas");
   canvas.width = 1200;
   canvas.height = 630;
@@ -486,6 +487,135 @@ function loadCanvasImage(src) {
   });
 }
 
+async function downloadTravelerJpegV2(traveler) {
+  const width = 1200;
+  const margin = 56;
+  const gutter = 34;
+  const leftWidth = 520;
+  const rightX = margin + leftWidth + gutter;
+  const rightWidth = width - rightX - margin;
+  const tempCanvas = document.createElement("canvas");
+  const tempCtx = tempCanvas.getContext("2d");
+  const metaText = `${traveler.faction} - ${traveler.people} - ${traveler.situation}${traveler.guild ? ` - ${traveler.guild}` : ""}`;
+  const rumorText = traveler.rumor ? `"${traveler.rumor}"` : "Aucune rumeur publique.";
+  const nameLines = canvasLines(tempCtx, traveler.name, rightWidth, "bold 40px Georgia");
+  const metaLines = canvasLines(tempCtx, metaText, rightWidth, "29px Georgia");
+  const rumorLines = canvasLines(tempCtx, rumorText, rightWidth, "italic 25px Georgia");
+  const recentLines = canvasLines(tempCtx, traveler.recentHistory || "Non renseignee.", rightWidth - 40, "22px Georgia");
+  const descriptionLines = canvasLines(tempCtx, traveler.description || "Description RP non renseignee.", rightWidth, "23px Georgia");
+  const lodgingLines = canvasLines(tempCtx, traveler.lodgingDescription || "Logis non renseigne.", rightWidth, "23px Georgia");
+  const rightHeight =
+    42 +
+    nameLines.length * 46 +
+    metaLines.length * 35 +
+    rumorLines.length * 32 +
+    240 +
+    recentLines.length * 29 +
+    descriptionLines.length * 31 +
+    lodgingLines.length * 31;
+  const canvasHeight = Math.max(900, rightHeight + margin * 2, 910);
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = canvasHeight;
+  const ctx = canvas.getContext("2d");
+  const gradient = ctx.createLinearGradient(0, 0, width, canvasHeight);
+  gradient.addColorStop(0, "#120806");
+  gradient.addColorStop(0.45, "#2b160d");
+  gradient.addColorStop(1, "#4b2816");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, canvasHeight);
+  ctx.strokeStyle = "#f2b544";
+  ctx.lineWidth = 8;
+  ctx.strokeRect(28, 28, width - 56, canvasHeight - 56);
+  ctx.strokeStyle = "rgba(202, 163, 95, 0.55)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(margin - 10, margin - 10, width - (margin - 10) * 2, canvasHeight - (margin - 10) * 2);
+
+  ctx.fillStyle = "#f2b544";
+  ctx.font = "bold 17px Arial";
+  ctx.fillText("PAGE DU REGISTRE", margin, margin + 18);
+
+  const portraitX = margin;
+  const portraitY = margin + 48;
+  const portraitHeight = Math.min(760, canvasHeight - portraitY - margin - 20);
+  ctx.save();
+  ctx.strokeStyle = "#caa35f";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(portraitX, portraitY, leftWidth, portraitHeight);
+  if (traveler.portrait) {
+    const portrait = await loadCanvasImage(traveler.portrait);
+    if (portrait) {
+      ctx.beginPath();
+      ctx.rect(portraitX + 4, portraitY + 4, leftWidth - 8, portraitHeight - 8);
+      ctx.clip();
+      const scale = Math.max((leftWidth - 8) / portrait.width, (portraitHeight - 8) / portrait.height);
+      const imageWidth = portrait.width * scale;
+      const imageHeight = portrait.height * scale;
+      ctx.drawImage(portrait, portraitX + 4 + (leftWidth - 8 - imageWidth) / 2, portraitY + 4 + (portraitHeight - 8 - imageHeight) / 2, imageWidth, imageHeight);
+    } else {
+      drawInitialPortrait(ctx, traveler.name, portraitX, portraitY, leftWidth, portraitHeight);
+    }
+  } else {
+    drawInitialPortrait(ctx, traveler.name, portraitX, portraitY, leftWidth, portraitHeight);
+  }
+  ctx.restore();
+
+  let y = margin + 22;
+  ctx.fillStyle = "#f2b544";
+  ctx.font = "bold 40px Georgia";
+  drawCanvasLines(ctx, nameLines, rightX, y, 46);
+  y += nameLines.length * 46 + 10;
+
+  ctx.fillStyle = "#ead7ad";
+  ctx.font = "29px Georgia";
+  drawCanvasLines(ctx, metaLines, rightX, y, 35);
+  y += metaLines.length * 35 + 18;
+
+  ctx.fillStyle = "#caa35f";
+  ctx.font = "italic 25px Georgia";
+  drawCanvasLines(ctx, rumorLines, rightX, y, 32);
+  y += rumorLines.length * 32 + 28;
+
+  const panelY = y;
+  const panelHeight = 154 + recentLines.length * 29;
+  ctx.fillStyle = "rgba(16, 13, 11, 0.46)";
+  ctx.fillRect(rightX, panelY, rightWidth, panelHeight);
+  ctx.strokeStyle = "rgba(242, 181, 68, 0.42)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(rightX, panelY, rightWidth, panelHeight);
+  drawSmallLabel(ctx, "CE QUI L'AMENE AU FEU DORMANT", rightX + 22, y + 34);
+  drawValue(ctx, traveler.reason, rightX + 22, y + 62);
+  drawSmallLabel(ctx, "RP RECHERCHE", rightX + 22, y + 98);
+  drawValue(ctx, traveler.rp, rightX + 22, y + 126);
+  drawSmallLabel(ctx, "CHRONIQUE RECENTE", rightX + 22, y + 164);
+  ctx.fillStyle = "#ead7ad";
+  ctx.font = "22px Georgia";
+  drawCanvasLines(ctx, recentLines, rightX + 22, y + 192, 29);
+  y += panelHeight + 36;
+
+  drawSmallLabel(ctx, "DESCRIPTION RP", rightX, y);
+  y += 30;
+  ctx.fillStyle = "#ead7ad";
+  ctx.font = "23px Georgia";
+  drawCanvasLines(ctx, descriptionLines, rightX, y, 31);
+  y += descriptionLines.length * 31 + 36;
+
+  drawSmallLabel(ctx, "DESCRIPTION DU LOGIS", rightX, y);
+  y += 30;
+  ctx.fillStyle = "#ead7ad";
+  ctx.font = "23px Georgia";
+  drawCanvasLines(ctx, lodgingLines, rightX, y, 31);
+
+  ctx.fillStyle = "#f2b544";
+  ctx.font = "bold 26px Georgia";
+  ctx.fillText("Au Feu Dormant", margin, canvasHeight - 58);
+
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/jpeg", 0.92);
+  link.download = `fiche-${slugify(traveler.name)}.jpg`;
+  link.click();
+}
+
 function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
   const words = text.split(" ");
   let line = "";
@@ -500,6 +630,56 @@ function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
     }
   });
   ctx.fillText(line, x, y);
+}
+
+function canvasLines(ctx, text, maxWidth, font) {
+  ctx.font = font;
+  const words = String(text || "").replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+  const lines = [];
+  let line = "";
+  words.forEach((word) => {
+    const testLine = `${line}${word} `;
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      lines.push(line.trim());
+      line = `${word} `;
+    } else {
+      line = testLine;
+    }
+  });
+  if (line.trim()) lines.push(line.trim());
+  return lines.length ? lines : [""];
+}
+
+function drawCanvasLines(ctx, lines, x, y, lineHeight) {
+  lines.forEach((line) => {
+    ctx.fillText(line, x, y);
+    y += lineHeight;
+  });
+}
+
+function drawSmallLabel(ctx, text, x, y) {
+  ctx.fillStyle = "#f2b544";
+  ctx.font = "bold 15px Arial";
+  ctx.fillText(text, x, y);
+}
+
+function drawValue(ctx, text, x, y) {
+  ctx.fillStyle = "#fff2cf";
+  ctx.font = "bold 21px Georgia";
+  ctx.fillText(text || "Non renseigne.", x, y);
+}
+
+function drawInitialPortrait(ctx, name, x, y, width, height) {
+  const gradient = ctx.createRadialGradient(x + width / 2, y + height / 2, 20, x + width / 2, y + height / 2, width / 1.4);
+  gradient.addColorStop(0, "rgba(242, 181, 68, 0.32)");
+  gradient.addColorStop(1, "rgba(16, 13, 11, 0.92)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(x + 4, y + 4, width - 8, height - 8);
+  ctx.fillStyle = "#f2b544";
+  ctx.font = "bold 76px Georgia";
+  ctx.textAlign = "center";
+  ctx.fillText(initials(name), x + width / 2, y + height / 2 + 24);
+  ctx.textAlign = "left";
 }
 
 function initials(name) {
