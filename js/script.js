@@ -5,12 +5,14 @@ let travelers = [
     faction: "Alliance",
     people: "Humaine",
     situation: "Exploratrice",
+    guild: "",
     reputation: "Respecté",
     reputationScore: 62,
     notoriety: "Visage aperçu",
     notorietyScore: 28,
     rumor: "Elle paie toujours ses dettes, mais jamais avec la même monnaie.",
     description: "Une exploratrice prudente, connue pour écouter avant de promettre.",
+    lodgingDescription: "",
     recentHistory: "+2 réputation après avoir ramené une carte humide au comptoir.",
     completedQuests: "Le tonneau qui murmure",
     chronicles: "Chronique des cartes salées",
@@ -22,12 +24,14 @@ let travelers = [
     faction: "Horde",
     people: "Orc",
     situation: "Marin",
+    guild: "",
     reputation: "Toléré",
     reputationScore: 46,
     notoriety: "Connu",
     notorietyScore: 52,
     rumor: "On dit qu'il connaît trois routes maritimes qui n'existent sur aucune carte.",
     description: "Un marin rugueux dont les silences valent parfois plus que ses récits.",
+    lodgingDescription: "",
     recentHistory: "A été cité dans une rumeur de port.",
     completedQuests: "La dette du marin rouge",
     chronicles: "Le carnet mouillé",
@@ -39,12 +43,14 @@ let travelers = [
     faction: "Neutre",
     people: "Pandaren",
     situation: "Soigneuse",
+    guild: "",
     reputation: "Admiré",
     reputationScore: 71,
     notoriety: "Fiable",
     notorietyScore: 44,
     rumor: "Elle soigne les blessures, mais pose toujours une question de trop.",
     description: "Soigneuse chaleureuse, mais rarement dupe des mensonges trop bien emballés.",
+    lodgingDescription: "",
     recentHistory: "A aidé un voyageur blessé avant de disparaître en cuisine.",
     completedQuests: "",
     chronicles: "",
@@ -154,9 +160,11 @@ function renderTravelers() {
       traveler.faction,
       traveler.people,
       traveler.situation,
+      traveler.guild,
       traveler.reputation,
       traveler.notoriety,
-      traveler.rumor
+      traveler.rumor,
+      traveler.lodgingDescription
     ].join(" ")).includes(query);
   });
 
@@ -169,6 +177,7 @@ function renderTravelers() {
         <p class="eyebrow">${traveler.faction} · ${traveler.people}</p>
         <h3>${traveler.name}</h3>
         <p>${traveler.situation}</p>
+        ${traveler.guild ? `<p><strong>Guilde :</strong> ${escapeHtml(traveler.guild)}</p>` : ""}
         ${bar("Réputation", traveler.reputation, traveler.reputationScore ?? traveler.progress ?? 30)}
         ${bar("Notoriété", traveler.notority || traveler.notoriety, traveler.notorietyScore ?? 25)}
         <p class="rumor">“${traveler.rumor}”</p>
@@ -216,7 +225,7 @@ function renderTravelerDetail(slug) {
     <div class="traveler-sheet">
       ${renderPortrait(traveler)}
       <div class="traveler-sheet-main">
-        <p class="eyebrow">${escapeHtml(traveler.faction || "Faction inconnue")} · ${escapeHtml(traveler.people || "Race inconnue")} · ${escapeHtml(traveler.situation || "Métier inconnu")}</p>
+        <p class="eyebrow">${escapeHtml(traveler.faction || "Faction inconnue")} · ${escapeHtml(traveler.people || "Race inconnue")} · ${escapeHtml(traveler.situation || "Métier inconnu")}${traveler.guild ? ` · ${escapeHtml(traveler.guild)}` : ""}</p>
         <h2>${escapeHtml(traveler.name)}</h2>
         <p>${escapeHtml(traveler.description || "Aucune description RP renseignée.")}</p>
         <div class="sheet-bars">
@@ -225,6 +234,8 @@ function renderTravelerDetail(slug) {
         </div>
         <div class="sheet-grid">
           ${sheetBlock("Rumeur publique", traveler.rumor)}
+          ${sheetBlock("Guilde", traveler.guild)}
+          ${sheetBlock("Description du logis", traveler.lodgingDescription)}
           ${sheetBlock("Chronique récente", traveler.recentHistory)}
           ${sheetList("Contrats honorés", traveler.completedQuests)}
           ${sheetList("Chroniques associées", traveler.chronicles)}

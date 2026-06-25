@@ -35,12 +35,14 @@ const starterData = {
       faction: "Alliance",
       people: "Humaine",
       situation: "Exploratrice",
+      guild: "",
       reputation: "Respecté",
       reputationScore: 62,
       notoriety: "Visage aperçu",
       notorietyScore: 28,
       rumor: "Elle paie toujours ses dettes, mais jamais avec la même monnaie.",
       description: "Une exploratrice prudente, connue pour écouter avant de promettre.",
+      lodgingDescription: "",
       recentHistory: "+2 réputation après avoir ramené une carte humide au comptoir.",
       completedQuests: "Le tonneau qui murmure",
       chronicles: "Chronique des cartes salées",
@@ -53,12 +55,14 @@ const starterData = {
       faction: "Horde",
       people: "Orc",
       situation: "Marin",
+      guild: "",
       reputation: "Toléré",
       reputationScore: 46,
       notoriety: "Connu",
       notorietyScore: 52,
       rumor: "On dit qu'il connaît trois routes maritimes qui n'existent sur aucune carte.",
       description: "Un marin rugueux dont les silences valent parfois plus que ses récits.",
+      lodgingDescription: "",
       recentHistory: "A été cité dans une rumeur de port.",
       completedQuests: "La dette du marin rouge",
       chronicles: "Le carnet mouillé",
@@ -236,9 +240,11 @@ function renderTravelerAdmin() {
       traveler.faction,
       traveler.people,
       traveler.situation,
+      traveler.guild,
       traveler.reputation,
       traveler.notoriety,
-      traveler.rumor
+      traveler.rumor,
+      traveler.lodgingDescription
     ].join(" ")).includes(query);
   });
   const items = adminShowAllTravelers ? filtered : filtered.slice(0, 5);
@@ -247,7 +253,7 @@ function renderTravelerAdmin() {
       <div>
         <p class="eyebrow">${escapeHtml(traveler.faction)} · ${escapeHtml(traveler.people || "Peuple inconnu")}</p>
         <h3>${escapeHtml(traveler.name)}</h3>
-        <p>${escapeHtml(traveler.situation || "Situation inconnue")} · ${escapeHtml(traveler.reputation || "Toléré")} · ${escapeHtml(traveler.notoriety || "Inconnu")}</p>
+        <p>${escapeHtml(traveler.situation || "Situation inconnue")} ${traveler.guild ? `· ${escapeHtml(traveler.guild)}` : ""} · ${escapeHtml(traveler.reputation || "Toléré")} · ${escapeHtml(traveler.notoriety || "Inconnu")}</p>
         <small>${escapeHtml(traveler.rumor || "Aucune rumeur.")}</small>
       </div>
       <div class="row-actions">
@@ -575,6 +581,7 @@ function renderTravelerPreview() {
         <p class="eyebrow">${escapeHtml(item.faction || "Faction")} · ${escapeHtml(item.people || "Race")}</p>
         <h3>${escapeHtml(item.name || "Nouveau voyageur")}</h3>
         <p>${escapeHtml(item.situation || "Métier")}</p>
+        ${item.guild ? `<p>${escapeHtml(item.guild)}</p>` : ""}
         ${bar("Réputation", item.reputation || "Toléré", item.reputationScore || 45)}
         ${bar("Notoriété", item.notoriety || "Inconnu", item.notorietyScore || 25)}
       </div>

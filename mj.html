@@ -136,6 +136,9 @@
               <label>Situation actuelle
                 <input name="situation" placeholder="Marin, mercenaire, mage...">
               </label>
+              <label>Guilde
+                <input name="guild" placeholder="Nom de guilde, équipage, ordre...">
+              </label>
               <label>Réputation
                 <select name="reputation">
                   <option>Détesté</option>
@@ -174,6 +177,9 @@
               <label>Description RP
                 <textarea name="description" placeholder="Décrivez l'identité, le ton et les accroches RP du personnage."></textarea>
               </label>
+              <label>Description du logis
+                <textarea name="lodgingDescription" placeholder="Chambre, coin réservé, affaires visibles, ambiance du logis..."></textarea>
+              </label>
               <label>Chronique récente
                 <textarea name="recentHistory" placeholder="Derniers faits marquants, réputation gagnée, incident notable..."></textarea>
               </label>
@@ -196,7 +202,7 @@
             <div>
               <h2>Noms au registre</h2>
               <label class="search-control">Rechercher un personnage
-                <input id="admin-traveler-search" type="search" placeholder="Nom, faction, race, métier, rumeur...">
+                <input id="admin-traveler-search" type="search" placeholder="Nom, guilde, faction, race, métier, rumeur...">
               </label>
               <div id="admin-traveler-list" class="admin-list"></div>
               <button id="admin-toggle-travelers" class="button secondary reveal-button" type="button" hidden>Dérouler le registre</button>
