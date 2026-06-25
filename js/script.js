@@ -1,1 +1,481 @@
-let travelers=[{name:"Maëlys Cornebrume",portrait:"",faction:"Alliance",people:"Humaine",situation:"Exploratrice",reputation:"Respecté",reputationScore:62,notoriety:"Visage aperçu",notorietyScore:28,rumor:"Elle paie toujours ses dettes, mais jamais avec la même monnaie.",description:"Une exploratrice prudente, connue pour écouter avant de promettre.",recentHistory:"+2 réputation après avoir ramené une carte humide au comptoir.",completedQuests:"Le tonneau qui murmure",chronicles:"Chronique des cartes salées",lastActivity:"Vue près de la table du fond."},{name:"Gorvak Brise-Amarre",portrait:"",faction:"Horde",people:"Orc",situation:"Marin",reputation:"Toléré",reputationScore:46,notoriety:"Connu",notorietyScore:52,rumor:"On dit qu'il connaît trois routes maritimes qui n'existent sur aucune carte.",description:"Un marin rugueux dont les silences valent parfois plus que ses récits.",recentHistory:"A été cité dans une rumeur de port.",completedQuests:"La dette du marin rouge",chronicles:"Le carnet mouillé",lastActivity:"A quitté l'auberge avant l'aube."},{name:"Sila des Lanternes",portrait:"",faction:"Neutre",people:"Pandaren",situation:"Soigneuse",reputation:"Admiré",reputationScore:71,notoriety:"Fiable",notorietyScore:44,rumor:"Elle soigne les blessures, mais pose toujours une question de trop.",description:"Soigneuse chaleureuse, mais rarement dupe des mensonges trop bien emballés.",recentHistory:"A aidé un voyageur blessé avant de disparaître en cuisine.",completedQuests:"",chronicles:"",lastActivity:"Présente lors de la dernière soirée de contes."}];let quests=[{status:"disponible",title:"Le tonneau qui murmure",summary:"Une livraison venue du port émet des coups depuis l'intérieur. Hector veut des volontaires avant de l'ouvrir.",difficulty:"Débutant",reputation:"Étranger accepté",participants:"1 à 4",reward:"Rumeur + faveur d'Hector",motif:"barrel",image:""},{status:"encours",title:"La dette du marin rouge",summary:"Un ancien compagnon d'Hector cherche un nom effacé de son carnet. Trois voyageurs l'ont déjà vu.",difficulty:"Intermédiaire",reputation:"Visage connu",participants:"2 inscrits",reward:"Accès à une chronique",motif:"map",image:""},{status:"disponible",title:"La table du fond",summary:"Chaque soir, une place reste libre et personne n'ose s'y asseoir. Ce soir, elle porte votre nom.",difficulty:"Tous niveaux",reputation:"Aucune",participants:"Solo ou duo",reward:"Rencontre RP spéciale",motif:"lantern",image:""},{status:"terminee",title:"Le sceau violet",summary:"Une lettre cachetée a été remise au bon destinataire. Personne ne sait encore si c'était une bonne idée.",difficulty:"Court",reputation:"Habitué",participants:"Terminée",reward:"Notoriété : Mystérieux",motif:"seal",image:""},{status:"archivee",title:"Les trois verres vides",summary:"Ancienne piste résolue lors d'une soirée de contes. Il n'en reste qu'une chanson mal accordée.",difficulty:"Archive",reputation:"Compagnon du Feu",participants:"Archivés",reward:"Chronique classée",motif:"scroll",image:""}];try{const data=JSON.parse(localStorage.getItem("afd_mj_data_v1")||"null");if(data&&Array.isArray(data.travelers)&&data.travelers.length)travelers=data.travelers;if(data&&Array.isArray(data.quests)&&data.quests.length)quests=data.quests;if(data&&Array.isArray(data.rumors)&&data.rumors.length)window.afdRumors=data.rumors}catch{}const navToggle=document.querySelector(".nav-toggle"),siteNav=document.querySelector(".site-nav"),travelerGrid=document.querySelector("#traveler-grid"),questGrid=document.querySelector("#quest-grid"),form=document.querySelector("#traveler-form"),generatedCard=document.querySelector("#generated-card"),travelerSearch=document.querySelector("#traveler-search"),toggleTravelers=document.querySelector("#toggle-travelers"),toggleQuests=document.querySelector("#toggle-quests"),toggleRumors=document.querySelector("#toggle-rumors");let currentQuestFilter="all",showAllTravelers=false,showAllQuests=false,showAllRumors=false;navToggle?.addEventListener("click",()=>{const open=siteNav.classList.toggle("open");navToggle.setAttribute("aria-expanded",String(open))});siteNav?.addEventListener("click",event=>{if(event.target instanceof HTMLAnchorElement){siteNav.classList.remove("open");navToggle?.setAttribute("aria-expanded","false")}});function renderTravelers(){if(!travelerGrid)return;const query=normalizeSearch(travelerSearch?.value||"");const visibleTravelers=travelers.filter(t=>!query||normalizeSearch([t.name,t.faction,t.people,t.situation,t.reputation,t.notoriety,t.rumor].join(" ")).includes(query));const displayed=showAllTravelers?visibleTravelers:visibleTravelers.slice(0,5);travelerGrid.innerHTML=displayed.map(t=>`<article class="traveler-card portrait-card">${renderPortrait(t)}<div class="card-body"><p class="eyebrow">${escapeHtml(t.faction)} · ${escapeHtml(t.people)}</p><h3>${escapeHtml(t.name)}</h3><p>${escapeHtml(t.situation)}</p>${bar("Réputation",t.reputation,t.reputationScore??t.progress??30)}${bar("Notoriété",t.notoriety||t.notoriete,t.notorietyScore??25)}<p class="rumor">“${escapeHtml(t.rumor)}”</p><a class="button secondary" href="#voyageur-${slugify(t.name)}" data-traveler="${slugify(t.name)}">Voir la fiche</a></div></article>`).join("")||`<p class="empty-state">Aucun voyageur ne correspond à cette recherche.</p>`;updateRevealButton(toggleTravelers,visibleTravelers.length,showAllTravelers,"voyageurs")}function renderQuests(filter="all"){if(!questGrid)return;currentQuestFilter=filter;const filtered=quests.filter(q=>filter==="all"||q.status===filter);const visible=showAllQuests?filtered:filtered.slice(0,5);questGrid.innerHTML=visible.map(q=>`<article class="quest-card" data-status="${escapeHtml(q.status)}">${q.image?`<img class="quest-upload-preview" src="${q.image}" alt="Illustration de quête">`:`<div class="quest-image ${escapeHtml(q.motif||"barrel")}" aria-hidden="true"></div>`}<p class="quest-status">${labelStatus(q.status)}</p><h3>${escapeHtml(q.title)}</h3><p>${escapeHtml(q.summary)}</p><dl><div><dt>Difficulté</dt><dd>${escapeHtml(q.difficulty)}</dd></div><div><dt>Réputation</dt><dd>${escapeHtml(q.reputation)}</dd></div><div><dt>Participants</dt><dd>${escapeHtml(q.participants)}</dd></div><div><dt>Récompense RP</dt><dd>${escapeHtml(q.reward)}</dd></div></dl></article>`).join("")||`<p class="empty-state">Aucune quête dans cette catégorie.</p>`;updateRevealButton(toggleQuests,filtered.length,showAllQuests,"quêtes")}document.addEventListener("click",event=>{const link=event.target.closest("[data-traveler]");if(!link)return;event.preventDefault();renderTravelerDetail(link.dataset.traveler)});function renderTravelerDetail(slug){const traveler=travelers.find(item=>slugify(item.name)===slug),detail=document.querySelector("#voyageur-detail");if(!traveler||!detail)return;detail.hidden=false;detail.innerHTML=`<div class="traveler-sheet">${renderPortrait(traveler)}<div class="traveler-sheet-main"><p class="eyebrow">${escapeHtml(traveler.faction||"Faction inconnue")} · ${escapeHtml(traveler.people||"Race inconnue")} · ${escapeHtml(traveler.situation||"Métier inconnu")}</p><h2>${escapeHtml(traveler.name)}</h2><p>${escapeHtml(traveler.description||"Aucune description RP renseignée.")}</p><div class="sheet-bars">${bar("Réputation",traveler.reputation||"Toléré",traveler.reputationScore??traveler.progress??30)}${bar("Notoriété",traveler.notoriety||"Inconnu",traveler.notorietyScore??20)}</div><div class="sheet-grid">${sheetBlock("Rumeur publique",traveler.rumor)}${sheetBlock("Chronique récente",traveler.recentHistory)}${sheetList("Contrats honorés",traveler.completedQuests)}${sheetList("Chroniques associées",traveler.chronicles)}${sheetBlock("Dernière activité",traveler.lastActivity)}</div></div></div>`;history.replaceState(null,"",`#voyageur-${slug}`);detail.scrollIntoView({behavior:"smooth",block:"start"})}function sheetBlock(title,value){return`<article class="sheet-block"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(value||"Non renseigné.")}</p></article>`}function sheetList(title,value){const lines=String(value||"").split(/\n+/).map(l=>l.trim()).filter(Boolean);const body=lines.length?`<ul>${lines.map(l=>`<li>${escapeHtml(l)}</li>`).join("")}</ul>`:"<p>Non renseigné.</p>";return`<article class="sheet-block"><h3>${escapeHtml(title)}</h3>${body}</article>`}function renderPortrait(t){if(t.portrait)return`<img class="traveler-portrait" src="${t.portrait}" alt="Portrait de ${escapeHtml(t.name)}">`;return`<div class="traveler-portrait placeholder" aria-hidden="true">${initials(t.name)}</div>`}function bar(title,label,score){const percent=Math.max(0,Math.min(100,Number(score||0)));return`<div class="reputation"><div class="rep-head"><span class="rep-title">${escapeHtml(title)}</span><span class="rep-rank">${escapeHtml(label||"Non renseigné")}</span><span class="rep-percent">${percent} %</span></div><div class="rep-bar" aria-label="${escapeHtml(title)} : ${escapeHtml(label||"")}, ${percent} %"><span style="width:${percent}%"></span></div></div>`}function renderRumors(){const list=document.querySelector("#rumor-list");if(!list)return;const defaults=[...list.querySelectorAll("li")].map(item=>({text:item.textContent,status:"visible"}));const rumors=Array.isArray(window.afdRumors)?window.afdRumors:defaults;const filtered=rumors.filter(r=>(r.status||"visible")==="visible");const visible=showAllRumors?filtered:filtered.slice(0,5);list.innerHTML=visible.map(r=>`<li>${escapeHtml(r.text)}</li>`).join("");updateRevealButton(toggleRumors,filtered.length,showAllRumors,"rumeurs")}document.querySelectorAll(".filter").forEach(filter=>{filter.addEventListener("click",()=>{document.querySelectorAll(".filter").forEach(button=>button.classList.remove("active"));filter.classList.add("active");showAllQuests=false;renderQuests(filter.dataset.filter)})});travelerSearch?.addEventListener("input",()=>{showAllTravelers=false;renderTravelers()});toggleTravelers?.addEventListener("click",()=>{showAllTravelers=!showAllTravelers;renderTravelers()});toggleQuests?.addEventListener("click",()=>{showAllQuests=!showAllQuests;renderQuests(currentQuestFilter)});toggleRumors?.addEventListener("click",()=>{showAllRumors=!showAllRumors;renderRumors()});function updateRevealButton(button,total,isExpanded,label){if(!button)return;const hidden=Math.max(0,total-5);button.hidden=total<=5;const labels={voyageurs:["Refermer le registre",`Dérouler ${hidden} voyageurs de plus`],quêtes:["Réduire le tableau",`Découvrir ${hidden} contrats de plus`],rumeurs:["Baisser la voix",`Écouter ${hidden} murmures de plus`]};const pair=labels[label]||[`Réduire les ${label}`,`Afficher ${hidden} ${label} de plus`];button.textContent=isExpanded?pair[0]:pair[1]}function normalizeSearch(value){return String(value||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}form?.addEventListener("submit",event=>{event.preventDefault();const data=Object.fromEntries(new FormData(form).entries());const traveler={name:data.name||"Voyageur sans nom",faction:data.faction||"Neutre",people:data.people||"Peuple inconnu",situation:data.situation||"Aventurier",reason:data.reason||"Trouver refuge",rp:data.rp||"Libre",rumor:data.rumor||"On ne sait pas encore ce qu'il vient chercher au Feu Dormant."};renderGeneratedCard(traveler)});function renderGeneratedCard(t){const text=`**${t.name}**\nFaction : ${t.faction}\nPeuple : ${t.people}\nSituation : ${t.situation}\nRaison : ${t.reason}\nRP recherché : ${t.rp}\nRumeur : ${t.rumor}`;const share=`${location.origin}${location.pathname}#fiche-${encodeURIComponent(t.name)}`;generatedCard.innerHTML=`<p class="eyebrow">Page du registre</p><h3>${escapeHtml(t.name)}</h3><p><strong>${escapeHtml(t.faction)}</strong> · ${escapeHtml(t.people)} · ${escapeHtml(t.situation)}</p><p class="rumor">“${escapeHtml(t.rumor)}”</p><div class="generated-actions"><button class="button secondary" type="button" data-copy>Copier l'annonce</button><button class="button secondary" type="button" data-share>Copier le chemin</button></div>`;generatedCard.querySelector("[data-copy]").addEventListener("click",()=>copyText(text));generatedCard.querySelector("[data-share]").addEventListener("click",()=>copyText(share))}async function copyText(text){try{await navigator.clipboard.writeText(text);flash("Copié.")}catch{flash("Copie indisponible dans ce navigateur.")}}function initials(name){return String(name).split(/\s+/).slice(0,2).map(p=>p[0]).join("").toUpperCase()}function labelStatus(status){return{disponible:"Disponible",encours:"En cours",terminee:"Terminée",archivee:"Archivée"}[status]||status}function slugify(value){return value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"")}function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[char]))}function flash(message){const notice=document.createElement("div");notice.className="toast";notice.textContent=message;document.body.append(notice);setTimeout(()=>notice.remove(),1800)}renderTravelers();renderQuests();renderRumors();if(location.hash.startsWith("#voyageur-"))renderTravelerDetail(location.hash.replace("#voyageur-",""));
+let travelers = [
+  {
+    name: "Maëlys Cornebrume",
+    portrait: "",
+    faction: "Alliance",
+    people: "Humaine",
+    situation: "Exploratrice",
+    reputation: "Respecté",
+    reputationScore: 62,
+    notoriety: "Visage aperçu",
+    notorietyScore: 28,
+    rumor: "Elle paie toujours ses dettes, mais jamais avec la même monnaie.",
+    description: "Une exploratrice prudente, connue pour écouter avant de promettre.",
+    recentHistory: "+2 réputation après avoir ramené une carte humide au comptoir.",
+    completedQuests: "Le tonneau qui murmure",
+    chronicles: "Chronique des cartes salées",
+    lastActivity: "Vue près de la table du fond."
+  },
+  {
+    name: "Gorvak Brise-Amarre",
+    portrait: "",
+    faction: "Horde",
+    people: "Orc",
+    situation: "Marin",
+    reputation: "Toléré",
+    reputationScore: 46,
+    notoriety: "Connu",
+    notorietyScore: 52,
+    rumor: "On dit qu'il connaît trois routes maritimes qui n'existent sur aucune carte.",
+    description: "Un marin rugueux dont les silences valent parfois plus que ses récits.",
+    recentHistory: "A été cité dans une rumeur de port.",
+    completedQuests: "La dette du marin rouge",
+    chronicles: "Le carnet mouillé",
+    lastActivity: "A quitté l'auberge avant l'aube."
+  },
+  {
+    name: "Sila des Lanternes",
+    portrait: "",
+    faction: "Neutre",
+    people: "Pandaren",
+    situation: "Soigneuse",
+    reputation: "Admiré",
+    reputationScore: 71,
+    notoriety: "Fiable",
+    notorietyScore: 44,
+    rumor: "Elle soigne les blessures, mais pose toujours une question de trop.",
+    description: "Soigneuse chaleureuse, mais rarement dupe des mensonges trop bien emballés.",
+    recentHistory: "A aidé un voyageur blessé avant de disparaître en cuisine.",
+    completedQuests: "",
+    chronicles: "",
+    lastActivity: "Présente lors de la dernière soirée de contes."
+  }
+];
+
+let quests = [
+  {
+    status: "disponible",
+    title: "Le tonneau qui murmure",
+    summary: "Une livraison venue du port émet des coups depuis l'intérieur. Hector veut des volontaires avant de l'ouvrir.",
+    difficulty: "Débutant",
+    reputation: "Étranger accepté",
+    participants: "1 à 4",
+    reward: "Rumeur + faveur d'Hector",
+    motif: "barrel",
+    image: ""
+  },
+  {
+    status: "encours",
+    title: "La dette du marin rouge",
+    summary: "Un ancien compagnon d'Hector cherche un nom effacé de son carnet. Trois voyageurs l'ont déjà vu.",
+    difficulty: "Intermédiaire",
+    reputation: "Visage connu",
+    participants: "2 inscrits",
+    reward: "Accès à une chronique",
+    motif: "map",
+    image: ""
+  },
+  {
+    status: "disponible",
+    title: "La table du fond",
+    summary: "Chaque soir, une place reste libre et personne n'ose s'y asseoir. Ce soir, elle porte votre nom.",
+    difficulty: "Tous niveaux",
+    reputation: "Aucune",
+    participants: "Solo ou duo",
+    reward: "Rencontre RP spéciale",
+    motif: "lantern"
+  },
+  {
+    status: "terminee",
+    title: "Le sceau violet",
+    summary: "Une lettre cachetée a été remise au bon destinataire. Personne ne sait encore si c'était une bonne idée.",
+    difficulty: "Court",
+    reputation: "Habitué",
+    participants: "Terminée",
+    reward: "Notoriété : Mystérieux",
+    motif: "seal"
+  },
+  {
+    status: "archivee",
+    title: "Les trois verres vides",
+    summary: "Ancienne piste résolue lors d'une soirée de contes. Il n'en reste qu'une chanson mal accordée.",
+    difficulty: "Archive",
+    reputation: "Compagnon du Feu",
+    participants: "Archivés",
+    reward: "Chronique classée",
+    motif: "scroll"
+  }
+];
+
+try {
+  const mjData = JSON.parse(localStorage.getItem("afd_mj_data_v1") || "null");
+  if (mjData && Array.isArray(mjData.travelers) && mjData.travelers.length) travelers = mjData.travelers;
+  if (mjData && Array.isArray(mjData.quests) && mjData.quests.length) quests = mjData.quests;
+  if (mjData && Array.isArray(mjData.rumors) && mjData.rumors.length) {
+    window.afdRumors = mjData.rumors;
+  }
+} catch {
+  // La console MJ locale est optionnelle. Les données de démonstration restent disponibles.
+}
+
+const navToggle = document.querySelector(".nav-toggle");
+const siteNav = document.querySelector(".site-nav");
+const travelerGrid = document.querySelector("#traveler-grid");
+const questGrid = document.querySelector("#quest-grid");
+const form = document.querySelector("#traveler-form");
+const generatedCard = document.querySelector("#generated-card");
+const travelerSearch = document.querySelector("#traveler-search");
+const toggleTravelers = document.querySelector("#toggle-travelers");
+const toggleQuests = document.querySelector("#toggle-quests");
+const toggleRumors = document.querySelector("#toggle-rumors");
+let currentQuestFilter = "all";
+let showAllTravelers = false;
+let showAllQuests = false;
+let showAllRumors = false;
+
+navToggle?.addEventListener("click", () => {
+  const isOpen = siteNav.classList.toggle("open");
+  navToggle.setAttribute("aria-expanded", String(isOpen));
+});
+
+siteNav?.addEventListener("click", (event) => {
+  if (event.target instanceof HTMLAnchorElement) {
+    siteNav.classList.remove("open");
+    navToggle?.setAttribute("aria-expanded", "false");
+  }
+});
+
+function renderTravelers() {
+  const query = normalizeSearch(travelerSearch?.value || "");
+  const visibleTravelers = travelers.filter((traveler) => {
+    if (!query) return true;
+    return normalizeSearch([
+      traveler.name,
+      traveler.faction,
+      traveler.people,
+      traveler.situation,
+      traveler.reputation,
+      traveler.notoriety,
+      traveler.rumor
+    ].join(" ")).includes(query);
+  });
+
+  const displayedTravelers = showAllTravelers ? visibleTravelers : visibleTravelers.slice(0, 5);
+
+  travelerGrid.innerHTML = displayedTravelers.map((traveler) => `
+    <article class="traveler-card portrait-card">
+      ${renderPortrait(traveler)}
+      <div class="card-body">
+        <p class="eyebrow">${traveler.faction} · ${traveler.people}</p>
+        <h3>${traveler.name}</h3>
+        <p>${traveler.situation}</p>
+        ${bar("Réputation", traveler.reputation, traveler.reputationScore ?? traveler.progress ?? 30)}
+        ${bar("Notoriété", traveler.notority || traveler.notoriety, traveler.notorietyScore ?? 25)}
+        <p class="rumor">“${traveler.rumor}”</p>
+        <a class="button secondary" href="#voyageur-${slugify(traveler.name)}" data-traveler="${slugify(traveler.name)}">Voir la fiche</a>
+      </div>
+    </article>
+  `).join("") || `<p class="empty-state">Aucun voyageur ne correspond à cette recherche.</p>`;
+  updateRevealButton(toggleTravelers, visibleTravelers.length, showAllTravelers, "voyageurs");
+}
+
+function renderQuests(filter = "all") {
+  currentQuestFilter = filter;
+  const filtered = quests.filter((quest) => filter === "all" || quest.status === filter);
+  const visible = showAllQuests ? filtered : filtered.slice(0, 5);
+  questGrid.innerHTML = visible.map((quest) => `
+    <article class="quest-card" data-status="${quest.status}">
+      ${quest.image ? `<img class="quest-upload-preview" src="${quest.image}" alt="Illustration de quête">` : `<div class="quest-image ${quest.motif}" aria-hidden="true"></div>`}
+      <p class="quest-status">${labelStatus(quest.status)}</p>
+      <h3>${quest.title}</h3>
+      <p>${quest.summary}</p>
+      <dl>
+        <div><dt>Difficulté</dt><dd>${quest.difficulty}</dd></div>
+        <div><dt>Réputation</dt><dd>${quest.reputation}</dd></div>
+        <div><dt>Participants</dt><dd>${quest.participants}</dd></div>
+        <div><dt>Récompense RP</dt><dd>${quest.reward}</dd></div>
+      </dl>
+    </article>
+  `).join("") || `<p class="empty-state">Aucune quête dans cette catégorie.</p>`;
+  updateRevealButton(toggleQuests, filtered.length, showAllQuests, "quêtes");
+}
+
+document.addEventListener("click", (event) => {
+  const link = event.target.closest("[data-traveler]");
+  if (!link) return;
+  event.preventDefault();
+  renderTravelerDetail(link.dataset.traveler);
+});
+
+function renderTravelerDetail(slug) {
+  const traveler = travelers.find((item) => slugify(item.name) === slug);
+  const detail = document.querySelector("#voyageur-detail");
+  if (!traveler || !detail) return;
+  detail.hidden = false;
+  detail.innerHTML = `
+    <div class="traveler-sheet">
+      ${renderPortrait(traveler)}
+      <div class="traveler-sheet-main">
+        <p class="eyebrow">${escapeHtml(traveler.faction || "Faction inconnue")} · ${escapeHtml(traveler.people || "Race inconnue")} · ${escapeHtml(traveler.situation || "Métier inconnu")}</p>
+        <h2>${escapeHtml(traveler.name)}</h2>
+        <p>${escapeHtml(traveler.description || "Aucune description RP renseignée.")}</p>
+        <div class="sheet-bars">
+          ${bar("Réputation", traveler.reputation || "Toléré", traveler.reputationScore ?? traveler.progress ?? 30)}
+          ${bar("Notoriété", traveler.notoriety || "Inconnu", traveler.notorietyScore ?? 20)}
+        </div>
+        <div class="sheet-grid">
+          ${sheetBlock("Rumeur publique", traveler.rumor)}
+          ${sheetBlock("Chronique récente", traveler.recentHistory)}
+          ${sheetList("Contrats honorés", traveler.completedQuests)}
+          ${sheetList("Chroniques associées", traveler.chronicles)}
+          ${sheetBlock("Dernière activité", traveler.lastActivity)}
+        </div>
+      </div>
+    </div>
+  `;
+  history.replaceState(null, "", `#voyageur-${slug}`);
+  detail.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function sheetBlock(title, value) {
+  return `<article class="sheet-block"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(value || "Non renseigné.")}</p></article>`;
+}
+
+function sheetList(title, value) {
+  const lines = String(value || "").split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  const body = lines.length ? `<ul>${lines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>` : "<p>Non renseigné.</p>";
+  return `<article class="sheet-block"><h3>${escapeHtml(title)}</h3>${body}</article>`;
+}
+
+function renderPortrait(traveler) {
+  if (traveler.portrait) return `<img class="traveler-portrait" src="${traveler.portrait}" alt="Portrait de ${escapeHtml(traveler.name)}">`;
+  return `<div class="traveler-portrait placeholder" aria-hidden="true">${initials(traveler.name)}</div>`;
+}
+
+function bar(title, label, score) {
+  const percent = Math.max(0, Math.min(100, Number(score || 0)));
+  return `
+    <div class="reputation">
+      <div class="rep-head">
+        <span class="rep-title">${escapeHtml(title)}</span>
+        <span class="rep-rank">${escapeHtml(label || "Non renseigné")}</span>
+        <span class="rep-percent">${percent} %</span>
+      </div>
+      <div class="rep-bar" aria-label="${escapeHtml(title)} : ${escapeHtml(label || "")}, ${percent} %">
+        <span style="width:${percent}%"></span>
+      </div>
+    </div>
+  `;
+}
+
+function renderRumors() {
+  const list = document.querySelector("#rumor-list");
+  if (!list) return;
+  const defaultRumors = [...list.querySelectorAll("li")].map((item) => ({ text: item.textContent, status: "visible" }));
+  const rumors = Array.isArray(window.afdRumors) ? window.afdRumors : defaultRumors;
+  const filteredRumors = rumors.filter((rumor) => (rumor.status || "visible") === "visible");
+  const visibleRumors = showAllRumors ? filteredRumors : filteredRumors.slice(0, 5);
+  list.innerHTML = visibleRumors.map((rumor) => `<li>${escapeHtml(rumor.text)}</li>`).join("");
+  updateRevealButton(toggleRumors, filteredRumors.length, showAllRumors, "rumeurs");
+}
+
+document.querySelectorAll(".filter").forEach((filter) => {
+  filter.addEventListener("click", () => {
+    document.querySelectorAll(".filter").forEach((button) => button.classList.remove("active"));
+    filter.classList.add("active");
+    showAllQuests = false;
+    renderQuests(filter.dataset.filter);
+  });
+});
+
+travelerSearch?.addEventListener("input", () => {
+  showAllTravelers = false;
+  renderTravelers();
+});
+
+toggleTravelers?.addEventListener("click", () => {
+  showAllTravelers = !showAllTravelers;
+  renderTravelers();
+});
+
+toggleQuests?.addEventListener("click", () => {
+  showAllQuests = !showAllQuests;
+  renderQuests(currentQuestFilter);
+});
+
+toggleRumors?.addEventListener("click", () => {
+  showAllRumors = !showAllRumors;
+  renderRumors();
+});
+
+function updateRevealButton(button, total, isExpanded, label) {
+  if (!button) return;
+  const hiddenCount = Math.max(0, total - 5);
+  button.hidden = total <= 5;
+  const labels = {
+    voyageurs: ["Refermer le registre", `Dérouler ${hiddenCount} voyageurs de plus`],
+    quêtes: ["Réduire le tableau", `Découvrir ${hiddenCount} contrats de plus`],
+    rumeurs: ["Baisser la voix", `Écouter ${hiddenCount} murmures de plus`]
+  };
+  const [closeLabel, openLabel] = labels[label] || [`Réduire les ${label}`, `Afficher ${hiddenCount} ${label} de plus`];
+  button.textContent = isExpanded ? closeLabel : openLabel;
+}
+
+function normalizeSearch(value) {
+  return String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+form?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const data = Object.fromEntries(new FormData(form).entries());
+  const traveler = {
+    name: data.name || "Voyageur sans nom",
+    faction: data.faction || "Neutre",
+    people: data.people || "Peuple inconnu",
+    situation: data.situation || "Aventurier",
+    reason: data.reason || "Trouver refuge",
+    rp: data.rp || "Libre",
+    rumor: data.rumor || "On ne sait pas encore ce qu'il vient chercher au Feu Dormant."
+  };
+  renderGeneratedCard(traveler);
+});
+
+function renderGeneratedCard(traveler) {
+  const discordText = `**${traveler.name}**\nFaction : ${traveler.faction}\nPeuple : ${traveler.people}\nSituation : ${traveler.situation}\nRaison : ${traveler.reason}\nRP recherché : ${traveler.rp}\nRumeur : ${traveler.rumor}`;
+  const share = `${location.origin}${location.pathname}#fiche-${encodeURIComponent(traveler.name)}`;
+  generatedCard.innerHTML = `
+    <p class="eyebrow">Page du registre</p>
+    <h3>${escapeHtml(traveler.name)}</h3>
+    <p><strong>${escapeHtml(traveler.faction)}</strong> · ${escapeHtml(traveler.people)} · ${escapeHtml(traveler.situation)}</p>
+    <p class="rumor">“${escapeHtml(traveler.rumor)}”</p>
+    <div class="generated-actions">
+      <button class="button secondary" type="button" data-copy>Copier l'annonce</button>
+      <button class="button secondary" type="button" data-jpeg>Sceller en image</button>
+      <button class="button secondary" type="button" data-share>Copier le chemin</button>
+    </div>
+  `;
+  generatedCard.querySelector("[data-copy]").addEventListener("click", () => copyText(discordText));
+  generatedCard.querySelector("[data-share]").addEventListener("click", () => copyText(share));
+  generatedCard.querySelector("[data-jpeg]").addEventListener("click", () => downloadTravelerJpeg(traveler));
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    flash("Copié.");
+  } catch {
+    flash("Copie indisponible dans ce navigateur.");
+  }
+}
+
+function downloadTravelerJpeg(traveler) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1200;
+  canvas.height = 630;
+  const ctx = canvas.getContext("2d");
+  const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
+  gradient.addColorStop(0, "#120806");
+  gradient.addColorStop(1, "#4b2816");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = "#f2b544";
+  ctx.lineWidth = 8;
+  ctx.strokeRect(32, 32, 1136, 566);
+  ctx.fillStyle = "#f2b544";
+  ctx.font = "bold 64px Georgia";
+  ctx.fillText(traveler.name, 80, 140);
+  ctx.fillStyle = "#ead7ad";
+  ctx.font = "34px Georgia";
+  wrapCanvasText(ctx, `${traveler.faction} · ${traveler.people} · ${traveler.situation}`, 80, 210, 1040, 44);
+  ctx.fillStyle = "#caa35f";
+  ctx.font = "30px Georgia";
+  wrapCanvasText(ctx, `Rumeur : ${traveler.rumor}`, 80, 330, 1040, 42);
+  ctx.fillStyle = "#f2b544";
+  ctx.font = "28px Georgia";
+  ctx.fillText("Au Feu Dormant", 80, 540);
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/jpeg", 0.92);
+  link.download = `fiche-${slugify(traveler.name)}.jpg`;
+  link.click();
+}
+
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(" ");
+  let line = "";
+  words.forEach((word) => {
+    const testLine = `${line}${word} `;
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      ctx.fillText(line, x, y);
+      line = `${word} `;
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  });
+  ctx.fillText(line, x, y);
+}
+
+function initials(name) {
+  return name.split(/\s+/).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+}
+
+function labelStatus(status) {
+  return {
+    disponible: "Disponible",
+    encours: "En cours",
+    terminee: "Terminée",
+    archivee: "Archivée"
+  }[status] || status;
+}
+
+function slugify(value) {
+  return value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[char]));
+}
+
+function flash(message) {
+  const notice = document.createElement("div");
+  notice.className = "toast";
+  notice.textContent = message;
+  document.body.append(notice);
+  setTimeout(() => notice.remove(), 1800);
+}
+
+renderTravelers();
+renderQuests();
+renderRumors();
+if (location.hash.startsWith("#voyageur-")) {
+  renderTravelerDetail(location.hash.replace("#voyageur-", ""));
+}
+
+async function loadOnlinePortalData() {
+  if (!window.afdSupabase) return;
+  try {
+    const onlineData = await window.afdSupabase.loadState({ travelers, quests, rumors: window.afdRumors || [] });
+    if (Array.isArray(onlineData.travelers) && onlineData.travelers.length) travelers = onlineData.travelers;
+    if (Array.isArray(onlineData.quests) && onlineData.quests.length) quests = onlineData.quests;
+    if (Array.isArray(onlineData.rumors)) window.afdRumors = onlineData.rumors;
+    showAllTravelers = false;
+    showAllQuests = false;
+    showAllRumors = false;
+    renderTravelers();
+    renderQuests(currentQuestFilter);
+    renderRumors();
+    if (location.hash.startsWith("#voyageur-")) {
+      renderTravelerDetail(location.hash.replace("#voyageur-", ""));
+    }
+  } catch (error) {
+    console.warn("Registre Supabase indisponible, donnees locales utilisees.", error);
+  }
+}
+
+loadOnlinePortalData();

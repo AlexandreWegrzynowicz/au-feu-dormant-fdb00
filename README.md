@@ -8,6 +8,8 @@ Le site sert de porte d'entree vers l'univers RP : voyageurs, contrats, murmures
 
 Version 1.0 publique.
 
+Version 2.0 en preparation : registre MJ connecte a Supabase.
+
 ## Structure
 
 ```text
@@ -16,10 +18,15 @@ Version 1.0 publique.
 |-- css/
 |   `-- styles.css
 |-- js/
-|   `-- script.js
+|   |-- script.js
+|   |-- mj.js
+|   |-- supabase-config.js
+|   `-- supabase-store.js
 |-- assets/
 |   |-- favicon.svg
 |   `-- og-image.svg
+|-- mj.html
+|-- supabase-schema.sql
 |-- images/
 |   `-- .gitkeep
 |-- fonts/
@@ -30,7 +37,7 @@ Version 1.0 publique.
 ## Pages
 
 - `index.html` : portail public.
-- La console MJ reste locale et n'est pas publiee sur GitHub Pages.
+- `mj.html` : console MJ protegee par Supabase Auth.
 
 ## Mise en ligne avec GitHub Pages
 
@@ -59,27 +66,41 @@ git push
 
 GitHub Pages republie automatiquement le site apres le push.
 
+## Supabase
+
+La console MJ utilise Supabase pour publier les voyageurs, contrats, murmures et chroniques sur le site public.
+
+Avant usage :
+
+1. Ouvrir Supabase > SQL Editor.
+2. Executer `supabase-schema.sql`.
+3. Ouvrir Supabase > Authentication > Users.
+4. Creer le compte du maitre de jeu.
+5. Se connecter sur `mj.html`.
+
+Ne jamais publier :
+
+- mot de passe de base ;
+- cle `service_role` ;
+- chaine de connexion Postgres ;
+- secret JWT.
+
 ## Console MJ
 
-La console MJ du prototype local utilise `localStorage`.
+La console MJ sauvegarde dans Supabase et garde une copie locale de secours dans `localStorage`.
 
 Cela signifie :
 
-- les donnees restent dans le navigateur utilise ;
-- elles ne sont pas partagees entre appareils ;
-- elle ne doit pas etre exposee telle quelle sur un depot public ;
-- elle ne constitue pas une securite de production ;
-- aucune donnee sensible ne doit y etre stockee.
+- le site public lit le registre en ligne ;
+- le MJ doit etre connecte via Supabase Auth pour ecrire ;
+- les visiteurs anonymes peuvent lire seulement la table publique `portal_state`.
 
-La future version 2 pourra brancher :
+Une version ulterieure pourra brancher :
 
-- Supabase Auth ;
 - comptes joueurs ;
-- base de donnees des voyageurs ;
-- contrats persistants ;
-- chroniques ;
-- reputation et notoriete ;
-- stockage d'images.
+- tables separees ;
+- roles MJ plus fins ;
+- stockage d'images Supabase.
 
 ## SEO minimal
 
