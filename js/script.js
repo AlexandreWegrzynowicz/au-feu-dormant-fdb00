@@ -336,29 +336,51 @@ function normalizeSearch(value) {
   return String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-form?.addEventListener("submit", (event) => {
+form?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
   const traveler = {
     name: data.name || "Voyageur sans nom",
+    portrait: await readPortraitFromForm(form),
     faction: data.faction || "Neutre",
     people: data.people || "Peuple inconnu",
     situation: data.situation || "Aventurier",
+    guild: data.guild || "",
     reason: data.reason || "Trouver refuge",
     rp: data.rp || "Libre",
-    rumor: data.rumor || "On ne sait pas encore ce qu'il vient chercher au Feu Dormant."
+    rumor: data.rumor || "On ne sait pas encore ce qu'il vient chercher au Feu Dormant.",
+    description: data.description || "",
+    lodgingDescription: data.lodgingDescription || "",
+    recentHistory: data.recentHistory || ""
   };
   renderGeneratedCard(traveler);
 });
 
 function renderGeneratedCard(traveler) {
-  const discordText = `**${traveler.name}**\nFaction : ${traveler.faction}\nPeuple : ${traveler.people}\nSituation : ${traveler.situation}\nRaison : ${traveler.reason}\nRP recherché : ${traveler.rp}\nRumeur : ${traveler.rumor}`;
+  const discordText = [
+    `**${traveler.name}**`,
+    `Faction : ${traveler.faction}`,
+    `Peuple : ${traveler.people}`,
+    `Situation : ${traveler.situation}`,
+    traveler.guild ? `Guilde : ${traveler.guild}` : "",
+    `Rumeur : ${traveler.rumor}`,
+    traveler.description ? `Description RP : ${traveler.description}` : "",
+    traveler.lodgingDescription ? `Description du logis : ${traveler.lodgingDescription}` : "",
+    traveler.recentHistory ? `Chronique recente : ${traveler.recentHistory}` : "",
+    "",
+    `Pour le MJ seulement : ${traveler.reason} · ${traveler.rp}`,
+    traveler.portrait ? "Portrait joint sur la fiche/JPEG, non publie automatiquement sur le site." : ""
+  ].filter(Boolean).join("\n");
   const share = `${location.origin}${location.pathname}#fiche-${encodeURIComponent(traveler.name)}`;
   generatedCard.innerHTML = `
     <p class="eyebrow">Page du registre</p>
+    ${traveler.portrait ? `<img class="traveler-portrait" src="${traveler.portrait}" alt="Portrait de ${escapeHtml(traveler.name)}">` : ""}
     <h3>${escapeHtml(traveler.name)}</h3>
-    <p><strong>${escapeHtml(traveler.faction)}</strong> · ${escapeHtml(traveler.people)} · ${escapeHtml(traveler.situation)}</p>
+    <p><strong>${escapeHtml(traveler.faction)}</strong> · ${escapeHtml(traveler.people)} · ${escapeHtml(traveler.situation)}${traveler.guild ? ` · ${escapeHtml(traveler.guild)}` : ""}</p>
     <p class="rumor">“${escapeHtml(traveler.rumor)}”</p>
+    ${traveler.description ? `<p>${escapeHtml(traveler.description)}</p>` : ""}
+    ${traveler.lodgingDescription ? `<p><strong>Logis :</strong> ${escapeHtml(traveler.lodgingDescription)}</p>` : ""}
+    ${traveler.recentHistory ? `<p><strong>Chronique recente :</strong> ${escapeHtml(traveler.recentHistory)}</p>` : ""}
     <div class="generated-actions">
       <button class="button secondary" type="button" data-copy>Copier l'annonce</button>
       <button class="button secondary" type="button" data-jpeg>Sceller en image</button>
@@ -370,6 +392,17 @@ function renderGeneratedCard(traveler) {
   generatedCard.querySelector("[data-jpeg]").addEventListener("click", () => downloadTravelerJpeg(traveler));
 }
 
+function readPortraitFromForm(formElement) {
+  const file = formElement.elements.portraitFile?.files?.[0];
+  if (!file || !["image/png", "image/jpeg", "image/webp"].includes(file.type)) return Promise.resolve("");
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => resolve("");
+    reader.readAsDataURL(file);
+  });
+}
+
 async function copyText(text) {
   try {
     await navigator.clipboard.writeText(text);
@@ -379,7 +412,7 @@ async function copyText(text) {
   }
 }
 
-function downloadTravelerJpeg(traveler) {
+async function downloadTravelerJpeg(traveler) {
   const canvas = document.createElement("canvas");
   canvas.width = 1200;
   canvas.height = 630;
@@ -392,15 +425,37 @@ function downloadTravelerJpeg(traveler) {
   ctx.strokeStyle = "#f2b544";
   ctx.lineWidth = 8;
   ctx.strokeRect(32, 32, 1136, 566);
+  if (traveler.portrait) {
+    const portrait = await loadCanvasImage(traveler.portrait);
+    if (portrait) {
+      ctx.save();
+      ctx.strokeStyle = "#caa35f";
+      ctx.lineWidth = 5;
+      ctx.strokeRect(780, 78, 330, 470);
+      ctx.beginPath();
+      ctx.rect(783, 81, 324, 464);
+      ctx.clip();
+      const scale = Math.max(324 / portrait.width, 464 / portrait.height);
+      const width = portrait.width * scale;
+      const height = portrait.height * scale;
+      ctx.drawImage(portrait, 783 + (324 - width) / 2, 81 + (464 - height) / 2, width, height);
+      ctx.restore();
+    }
+  }
   ctx.fillStyle = "#f2b544";
   ctx.font = "bold 64px Georgia";
   ctx.fillText(traveler.name, 80, 140);
   ctx.fillStyle = "#ead7ad";
   ctx.font = "34px Georgia";
-  wrapCanvasText(ctx, `${traveler.faction} · ${traveler.people} · ${traveler.situation}`, 80, 210, 1040, 44);
+  wrapCanvasText(ctx, `${traveler.faction} · ${traveler.people} · ${traveler.situation}${traveler.guild ? ` · ${traveler.guild}` : ""}`, 80, 210, traveler.portrait ? 650 : 1040, 44);
   ctx.fillStyle = "#caa35f";
-  ctx.font = "30px Georgia";
-  wrapCanvasText(ctx, `Rumeur : ${traveler.rumor}`, 80, 330, 1040, 42);
+  ctx.font = "28px Georgia";
+  wrapCanvasText(ctx, `Rumeur : ${traveler.rumor}`, 80, 310, traveler.portrait ? 650 : 1040, 38);
+  if (traveler.description) {
+    ctx.fillStyle = "#ead7ad";
+    ctx.font = "24px Georgia";
+    wrapCanvasText(ctx, traveler.description, 80, 420, traveler.portrait ? 650 : 1040, 34);
+  }
   ctx.fillStyle = "#f2b544";
   ctx.font = "28px Georgia";
   ctx.fillText("Au Feu Dormant", 80, 540);
@@ -408,6 +463,15 @@ function downloadTravelerJpeg(traveler) {
   link.href = canvas.toDataURL("image/jpeg", 0.92);
   link.download = `fiche-${slugify(traveler.name)}.jpg`;
   link.click();
+}
+
+function loadCanvasImage(src) {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => resolve(null);
+    image.src = src;
+  });
 }
 
 function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {

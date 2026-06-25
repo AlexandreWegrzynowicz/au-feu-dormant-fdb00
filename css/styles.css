@@ -26,3 +26,9 @@
 .admin-row .row-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
 .admin-row .row-actions .button{width:100%;min-width:0}
 @media (max-width:980px){.admin-layout{grid-template-columns:1fr}.admin-row .row-actions{grid-template-columns:1fr}}
+.label-row{display:flex;align-items:center;justify-content:space-between;gap:.65rem}
+.hint{display:inline-grid;place-items:center;width:1.45rem;min-width:1.45rem;aspect-ratio:1;border:1px solid rgba(255,221,132,.92);border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff2b8 0 18%,var(--gold) 42%,#9f531e 100%);color:#1c0e08;font:900 .9rem Arial,sans-serif;cursor:help;box-shadow:0 0 .65rem rgba(242,181,68,.36),inset 0 0 0 1px rgba(255,255,255,.18)}
+.hint:hover,.hint:focus-visible{filter:brightness(1.12);outline:1px solid var(--gold);box-shadow:0 0 1rem rgba(242,181,68,.62),inset 0 0 0 1px rgba(255,255,255,.25)}
+.mj-note{margin-top:1rem;padding:1rem;border:1px solid var(--line);background:rgba(6,5,4,.42)}
+.mj-note h3{font-size:1.1rem}
+.generated-actions{display:grid;gap:.6rem;margin-top:1rem}
