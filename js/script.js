@@ -378,9 +378,13 @@ function renderGeneratedCard(traveler) {
     <h3>${escapeHtml(traveler.name)}</h3>
     <p><strong>${escapeHtml(traveler.faction)}</strong> · ${escapeHtml(traveler.people)} · ${escapeHtml(traveler.situation)}${traveler.guild ? ` · ${escapeHtml(traveler.guild)}` : ""}</p>
     <p class="rumor">“${escapeHtml(traveler.rumor)}”</p>
+    <dl class="generated-meta">
+      <div><dt>Ce qui l'amene au Feu Dormant</dt><dd>${escapeHtml(traveler.reason)}</dd></div>
+      <div><dt>RP recherche</dt><dd>${escapeHtml(traveler.rp)}</dd></div>
+      <div><dt>Chronique recente</dt><dd>${escapeHtml(traveler.recentHistory || "Non renseignee.")}</dd></div>
+    </dl>
     ${traveler.description ? `<p>${escapeHtml(traveler.description)}</p>` : ""}
     ${traveler.lodgingDescription ? `<p><strong>Logis :</strong> ${escapeHtml(traveler.lodgingDescription)}</p>` : ""}
-    ${traveler.recentHistory ? `<p><strong>Chronique recente :</strong> ${escapeHtml(traveler.recentHistory)}</p>` : ""}
     <div class="generated-actions">
       <button class="button secondary" type="button" data-copy>Copier l'annonce</button>
       <button class="button secondary" type="button" data-jpeg>Sceller en image</button>
@@ -451,10 +455,18 @@ async function downloadTravelerJpeg(traveler) {
   ctx.fillStyle = "#caa35f";
   ctx.font = "28px Georgia";
   wrapCanvasText(ctx, `Rumeur : ${traveler.rumor}`, 80, 310, traveler.portrait ? 650 : 1040, 38);
+  ctx.fillStyle = "#f2b544";
+  ctx.font = "24px Georgia";
+  wrapCanvasText(ctx, `${traveler.reason} · ${traveler.rp}`, 80, 385, traveler.portrait ? 650 : 1040, 32);
+  if (traveler.recentHistory) {
+    ctx.fillStyle = "#caa35f";
+    ctx.font = "22px Georgia";
+    wrapCanvasText(ctx, `Chronique : ${traveler.recentHistory}`, 80, 435, traveler.portrait ? 650 : 1040, 30);
+  }
   if (traveler.description) {
     ctx.fillStyle = "#ead7ad";
-    ctx.font = "24px Georgia";
-    wrapCanvasText(ctx, traveler.description, 80, 420, traveler.portrait ? 650 : 1040, 34);
+    ctx.font = "22px Georgia";
+    wrapCanvasText(ctx, traveler.description, 80, traveler.recentHistory ? 505 : 450, traveler.portrait ? 650 : 1040, 30);
   }
   ctx.fillStyle = "#f2b544";
   ctx.font = "28px Georgia";

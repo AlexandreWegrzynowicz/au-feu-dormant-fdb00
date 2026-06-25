@@ -32,3 +32,7 @@
 .mj-note{margin-top:1rem;padding:1rem;border:1px solid var(--line);background:rgba(6,5,4,.42)}
 .mj-note h3{font-size:1.1rem}
 .generated-actions{display:grid;gap:.6rem;margin-top:1rem}
+.generated-meta{margin:1rem 0;padding:1rem;border:1px solid var(--line);background:rgba(6,5,4,.36)}
+.generated-meta div+div{margin-top:.75rem}
+.generated-meta dt{color:var(--gold)}
+.generated-meta dd{color:#fff2cf}
