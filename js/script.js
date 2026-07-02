@@ -342,12 +342,12 @@ function normalizeSearch(value) {
 }
 
 const roomPrices = {
-  "dortoir-prive-1": { label: "Chambre I - Lit prive 1", price: 50, maxOccupants: 1, privateRoom: false },
-  "dortoir-lit-2": { label: "Chambre I - Lit dortoir 2", price: 20, maxOccupants: 1, privateRoom: false },
-  "dortoir-lit-3": { label: "Chambre I - Lit dortoir 3", price: 20, maxOccupants: 1, privateRoom: false },
-  "dortoir-lit-4": { label: "Chambre I - Lit dortoir 4", price: 20, maxOccupants: 1, privateRoom: false },
-  "chambre-ii": { label: "Chambre II, individuelle", price: 100, maxOccupants: 2, privateRoom: true },
-  "chambre-iii": { label: "Chambre III, luxe", price: 500, maxOccupants: 4, privateRoom: true }
+  "dortoir-prive-1": { label: "Chambre I - Lit prive 1", price: 50, maxOccupants: 1, privateRoom: false, majordomo: false },
+  "dortoir-lit-2": { label: "Chambre I - Lit dortoir 2", price: 20, maxOccupants: 1, privateRoom: false, majordomo: false },
+  "dortoir-lit-3": { label: "Chambre I - Lit dortoir 3", price: 20, maxOccupants: 1, privateRoom: false, majordomo: false },
+  "dortoir-lit-4": { label: "Chambre I - Lit dortoir 4", price: 20, maxOccupants: 1, privateRoom: false, majordomo: false },
+  "chambre-ii": { label: "Chambre II, individuelle", price: 100, maxOccupants: 2, privateRoom: true, majordomo: false },
+  "chambre-iii": { label: "Chambre III, luxe", price: 500, maxOccupants: 4, privateRoom: true, majordomo: true }
 };
 
 function calculateReservationCost(data) {
@@ -357,12 +357,13 @@ function calculateReservationCost(data) {
   const occupants = Math.max(1, Math.min(room?.maxOccupants || 1, Number(data.occupants) || 1));
   const roomCost = room ? room.price * nights : 0;
   const breakfastCost = data.breakfast ? 10 * occupants * nights : 0;
-  const majordomoCost = data.majordomo ? 100 : 0;
+  const hasMajordomo = Boolean(data.majordomo && room?.majordomo);
+  const majordomoCost = hasMajordomo ? 100 : 0;
   const nightlyCost = (room ? room.price : 0) + (data.breakfast ? 10 * occupants : 0);
   const total = isIndefinite ? nightlyCost : roomCost + breakfastCost + majordomoCost;
   const supplements = [
     data.breakfast ? (isIndefinite ? `Petit-dejeuner (${formatRpCost(10 * occupants)} par nuit)` : `Petit-dejeuner (${formatRpCost(breakfastCost)})`) : "",
-    data.majordomo ? (isIndefinite ? "Majordome (1 doree, frais fixe)" : `Majordome (${formatRpCost(majordomoCost)})`) : ""
+    hasMajordomo ? (isIndefinite ? "Majordome (1 doree, frais fixe)" : `Majordome (${formatRpCost(majordomoCost)})`) : ""
   ].filter(Boolean);
   return {
     room,
@@ -370,7 +371,7 @@ function calculateReservationCost(data) {
     occupants,
     isIndefinite,
     total,
-    totalLabel: isIndefinite ? `${formatRpCost(total)} / nuit${data.majordomo ? " + 1 doree de majordome" : ""}` : formatRpCost(total),
+    totalLabel: isIndefinite ? `${formatRpCost(total)} / nuit${hasMajordomo ? " + 1 doree de majordome" : ""}` : formatRpCost(total),
     supplements: supplements.length ? supplements : ["Aucun supplement"]
   };
 }
@@ -396,10 +397,18 @@ function syncReservationRoomRules() {
   if (!reservationForm) return;
   const room = roomPrices[reservationForm.elements.room?.value] || null;
   const occupantsField = reservationForm.elements.occupants;
+  const majordomoField = reservationForm.elements.majordomo;
+  const majordomoOption = document.querySelector("#majordomo-option");
   const maxOccupants = room?.maxOccupants || 1;
   if (occupantsField) {
     occupantsField.max = String(maxOccupants);
     occupantsField.value = String(Math.max(1, Math.min(maxOccupants, Number(occupantsField.value) || 1)));
+  }
+  if (majordomoField && majordomoOption) {
+    const canUseMajordomo = Boolean(room?.majordomo);
+    majordomoOption.hidden = !canUseMajordomo;
+    majordomoField.disabled = !canUseMajordomo;
+    if (!canUseMajordomo) majordomoField.checked = false;
   }
   if (roomAccessFields) {
     roomAccessFields.hidden = !room?.privateRoom;
