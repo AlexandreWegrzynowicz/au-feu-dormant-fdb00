@@ -44,6 +44,9 @@ exports.handler = async (event) => {
     `**Durée du séjour :** ${clean(payload.duration, 80) || "Non précisée"}`,
     `**Nombre d'occupants :** ${clean(payload.occupants, 20) || "1"}`,
     `**Suppléments :** ${formatList(payload.supplements)}`,
+    `**Liste blanche :** ${cleanMultiline(payload.allowedGuests, 700) || "Non renseignée"}`,
+    `**Garde du corps :** ${clean(payload.bodyguard, 120) || "Aucun"}`,
+    `**Renseignement escorte :** ${cleanMultiline(payload.bodyguardDetails, 600) || "Aucun"}`,
     `**Demandes particulières :** ${clean(payload.requests, 700) || "Aucune"}`,
     `**Commentaire :** ${clean(payload.comment, 900) || "Aucun"}`,
     "",
@@ -79,6 +82,15 @@ function clean(value, maxLength) {
   return String(value || "")
     .replace(/[\u0000-\u001f\u007f]/g, " ")
     .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+}
+
+function cleanMultiline(value, maxLength) {
+  return String(value || "")
+    .replace(/[\u0000-\u0009\u000b-\u001f\u007f]/g, " ")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
     .trim()
     .slice(0, maxLength);
 }

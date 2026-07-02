@@ -138,6 +138,7 @@ const reservationForm = document.querySelector("#reservation-form");
 const reservationTotal = document.querySelector("#reservation-total");
 const reservationDetail = document.querySelector("#reservation-detail");
 const reservationStatus = document.querySelector("#reservation-status");
+const roomAccessFields = document.querySelector("#room-access-fields");
 let currentQuestFilter = "all";
 let showAllTravelers = false;
 let showAllQuests = false;
@@ -341,19 +342,19 @@ function normalizeSearch(value) {
 }
 
 const roomPrices = {
-  "dortoir-prive-1": { label: "Chambre I - Lit prive 1", price: 50 },
-  "dortoir-lit-2": { label: "Chambre I - Lit dortoir 2", price: 20 },
-  "dortoir-lit-3": { label: "Chambre I - Lit dortoir 3", price: 20 },
-  "dortoir-lit-4": { label: "Chambre I - Lit dortoir 4", price: 20 },
-  "chambre-ii": { label: "Chambre II, individuelle", price: 100 },
-  "chambre-iii": { label: "Chambre III, luxe", price: 500 }
+  "dortoir-prive-1": { label: "Chambre I - Lit prive 1", price: 50, maxOccupants: 1, privateRoom: false },
+  "dortoir-lit-2": { label: "Chambre I - Lit dortoir 2", price: 20, maxOccupants: 1, privateRoom: false },
+  "dortoir-lit-3": { label: "Chambre I - Lit dortoir 3", price: 20, maxOccupants: 1, privateRoom: false },
+  "dortoir-lit-4": { label: "Chambre I - Lit dortoir 4", price: 20, maxOccupants: 1, privateRoom: false },
+  "chambre-ii": { label: "Chambre II, individuelle", price: 100, maxOccupants: 2, privateRoom: true },
+  "chambre-iii": { label: "Chambre III, luxe", price: 500, maxOccupants: 4, privateRoom: true }
 };
 
 function calculateReservationCost(data) {
   const room = roomPrices[data.room] || null;
   const isIndefinite = data.duration === "indetermine";
   const nights = isIndefinite ? 1 : Math.max(1, Number(data.duration) || 1);
-  const occupants = Math.max(1, Math.min(12, Number(data.occupants) || 1));
+  const occupants = Math.max(1, Math.min(room?.maxOccupants || 1, Number(data.occupants) || 1));
   const roomCost = room ? room.price * nights : 0;
   const breakfastCost = data.breakfast ? 10 * occupants * nights : 0;
   const majordomoCost = data.majordomo ? 100 : 0;
@@ -391,8 +392,27 @@ function getReservationData() {
   return data;
 }
 
+function syncReservationRoomRules() {
+  if (!reservationForm) return;
+  const room = roomPrices[reservationForm.elements.room?.value] || null;
+  const occupantsField = reservationForm.elements.occupants;
+  const maxOccupants = room?.maxOccupants || 1;
+  if (occupantsField) {
+    occupantsField.max = String(maxOccupants);
+    occupantsField.value = String(Math.max(1, Math.min(maxOccupants, Number(occupantsField.value) || 1)));
+  }
+  if (roomAccessFields) {
+    roomAccessFields.hidden = !room?.privateRoom;
+    roomAccessFields.querySelectorAll("textarea, select").forEach((field) => {
+      field.disabled = !room?.privateRoom;
+      if (!room?.privateRoom) field.value = field.tagName === "SELECT" ? "Aucun" : "";
+    });
+  }
+}
+
 function updateReservationTotal() {
   if (!reservationForm || !reservationTotal || !reservationDetail) return;
+  syncReservationRoomRules();
   const data = getReservationData();
   const cost = calculateReservationCost(data);
   reservationTotal.textContent = cost.totalLabel;
@@ -401,10 +421,10 @@ function updateReservationTotal() {
     return;
   }
   if (cost.isIndefinite) {
-    reservationDetail.textContent = `${cost.room.label}, tarif indique a la nuit, ${cost.occupants} occupant(s). Supplements : ${cost.supplements.join(", ")}.`;
+    reservationDetail.textContent = `${cost.room.label}, tarif indique a la nuit, ${cost.occupants}/${cost.room.maxOccupants} occupant(s). Supplements : ${cost.supplements.join(", ")}.`;
     return;
   }
-  reservationDetail.textContent = `${cost.room.label} x ${cost.nights} nuit(s), ${cost.occupants} occupant(s). Supplements : ${cost.supplements.join(", ")}.`;
+  reservationDetail.textContent = `${cost.room.label} x ${cost.nights} nuit(s), ${cost.occupants}/${cost.room.maxOccupants} occupant(s). Supplements : ${cost.supplements.join(", ")}.`;
 }
 
 reservationForm?.addEventListener("input", updateReservationTotal);
@@ -413,6 +433,7 @@ reservationForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!reservationForm.reportValidity()) return;
   const button = reservationForm.querySelector("button[type=submit]");
+  syncReservationRoomRules();
   const data = getReservationData();
   const cost = calculateReservationCost(data);
   const payload = {
@@ -423,6 +444,9 @@ reservationForm?.addEventListener("submit", async (event) => {
     duration: reservationForm.elements.duration?.selectedOptions?.[0]?.textContent || "Une nuit",
     occupants: cost.occupants,
     supplements: cost.supplements,
+    allowedGuests: String(data.allowedGuests || "Non renseignee").trim(),
+    bodyguard: String(data.bodyguard || "Aucun").trim(),
+    bodyguardDetails: String(data.bodyguardDetails || "Aucun renseignement").trim(),
     requests: String(data.requests || "Aucune").trim(),
     comment: String(data.comment || "Aucun").trim(),
     total: cost.totalLabel

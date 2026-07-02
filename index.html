@@ -221,8 +221,8 @@
           <h3>Chambres disponibles</h3>
           <dl>
             <div><dt>Chambre I - Dortoir</dt><dd>Lit priv&eacute; 1 : 50 argent&eacute;es la nuit. Lits dortoir 2 &agrave; 4 : 20 argent&eacute;es la nuit.</dd></div>
-            <div><dt>Chambre II</dt><dd>Chambre individuelle : 1 dor&eacute;e.</dd></div>
-            <div><dt>Chambre III</dt><dd>Chambre de luxe : 5 dor&eacute;es.</dd></div>
+            <div><dt>Chambre II</dt><dd>Chambre individuelle : 1 dor&eacute;e la nuit. Jusqu'&agrave; 2 occupants.</dd></div>
+            <div><dt>Chambre III</dt><dd>Chambre de luxe : 5 dor&eacute;es la nuit. Jusqu'&agrave; 4 occupants.</dd></div>
           </dl>
           <div class="dorm-plan" aria-label="Plan simplifi&eacute; du dortoir">
             <span class="bed private">1<br><small>Priv&eacute;</small></span>
@@ -260,8 +260,23 @@
           </select>
         </label>
         <label>Nombre d'occupants
-          <input name="occupants" type="number" min="1" max="12" value="1">
+          <input name="occupants" type="number" min="1" max="1" value="1">
         </label>
+        <div id="room-access-fields" class="room-access-fields" hidden>
+          <label>Liste blanche de la chambre
+            <textarea name="allowedGuests" maxlength="600" placeholder="Noms des personnes autoris&eacute;es &agrave; entrer pendant l'occupation. Une personne par ligne si possible."></textarea>
+          </label>
+          <label>Garde du corps
+            <select name="bodyguard">
+              <option value="Aucun">Aucun garde du corps</option>
+              <option value="Accompagne">Un garde du corps accompagne la personne</option>
+              <option value="Sur demande">Garde du corps souhait&eacute; sur demande</option>
+            </select>
+          </label>
+          <label>Renseignement sur l'escorte
+            <textarea name="bodyguardDetails" maxlength="500" placeholder="Nom, faction, consignes, horaires, discr&eacute;tion demand&eacute;e..."></textarea>
+          </label>
+        </div>
         <fieldset class="form-fieldset">
           <legend>Suppl&eacute;ments RP</legend>
           <label class="check-row">
