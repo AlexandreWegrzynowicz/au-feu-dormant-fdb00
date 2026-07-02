@@ -220,10 +220,16 @@
         <div class="notice-board room-board" aria-label="Chambres disponibles">
           <h3>Chambres disponibles</h3>
           <dl>
-            <div><dt>Chambre I - Dortoir</dt><dd>Lit : 20 argent&eacute;es. Lit priv&eacute; : 50 argent&eacute;es.</dd></div>
+            <div><dt>Chambre I - Dortoir</dt><dd>Lit priv&eacute; 1 : 50 argent&eacute;es la nuit. Lits dortoir 2 &agrave; 4 : 20 argent&eacute;es la nuit.</dd></div>
             <div><dt>Chambre II</dt><dd>Chambre individuelle : 1 dor&eacute;e.</dd></div>
             <div><dt>Chambre III</dt><dd>Chambre de luxe : 5 dor&eacute;es.</dd></div>
           </dl>
+          <div class="dorm-plan" aria-label="Plan simplifi&eacute; du dortoir">
+            <span class="bed private">1<br><small>Priv&eacute;</small></span>
+            <span class="bed">2<br><small>Dortoir</small></span>
+            <span class="bed">3<br><small>Dortoir</small></span>
+            <span class="bed">4<br><small>Dortoir</small></span>
+          </div>
         </div>
       </div>
       <form id="reservation-form" class="form-panel reservation-form">
@@ -233,8 +239,10 @@
         <label>Chambre souhait&eacute;e
           <select name="room" required>
             <option value="">Choisir une chambre</option>
-            <option value="dortoir-lit">Chambre I - Dortoir, lit simple - 20 argent&eacute;es</option>
-            <option value="dortoir-prive">Chambre I - Dortoir, lit priv&eacute; - 50 argent&eacute;es</option>
+            <option value="dortoir-prive-1">Chambre I - Lit priv&eacute; 1 - 50 argent&eacute;es la nuit</option>
+            <option value="dortoir-lit-2">Chambre I - Lit dortoir 2 - 20 argent&eacute;es la nuit</option>
+            <option value="dortoir-lit-3">Chambre I - Lit dortoir 3 - 20 argent&eacute;es la nuit</option>
+            <option value="dortoir-lit-4">Chambre I - Lit dortoir 4 - 20 argent&eacute;es la nuit</option>
             <option value="chambre-ii">Chambre II, individuelle - 1 dor&eacute;e</option>
             <option value="chambre-iii">Chambre III, luxe - 5 dor&eacute;es</option>
           </select>
@@ -248,7 +256,7 @@
             <option value="2">Deux nuits</option>
             <option value="3">Trois nuits</option>
             <option value="7">Une semaine</option>
-            <option value="1">S&eacute;jour ind&eacute;termin&eacute;</option>
+            <option value="indetermine">S&eacute;jour ind&eacute;termin&eacute; - tarif &agrave; la nuit</option>
           </select>
         </label>
         <label>Nombre d'occupants

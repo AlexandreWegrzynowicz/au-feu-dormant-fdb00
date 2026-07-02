@@ -341,30 +341,35 @@ function normalizeSearch(value) {
 }
 
 const roomPrices = {
-  "dortoir-lit": { label: "Chambre I - Dortoir, lit simple", price: 20 },
-  "dortoir-prive": { label: "Chambre I - Dortoir, lit prive", price: 50 },
+  "dortoir-prive-1": { label: "Chambre I - Lit prive 1", price: 50 },
+  "dortoir-lit-2": { label: "Chambre I - Lit dortoir 2", price: 20 },
+  "dortoir-lit-3": { label: "Chambre I - Lit dortoir 3", price: 20 },
+  "dortoir-lit-4": { label: "Chambre I - Lit dortoir 4", price: 20 },
   "chambre-ii": { label: "Chambre II, individuelle", price: 100 },
   "chambre-iii": { label: "Chambre III, luxe", price: 500 }
 };
 
 function calculateReservationCost(data) {
   const room = roomPrices[data.room] || null;
-  const nights = Math.max(1, Number(data.duration) || 1);
+  const isIndefinite = data.duration === "indetermine";
+  const nights = isIndefinite ? 1 : Math.max(1, Number(data.duration) || 1);
   const occupants = Math.max(1, Math.min(12, Number(data.occupants) || 1));
   const roomCost = room ? room.price * nights : 0;
   const breakfastCost = data.breakfast ? 10 * occupants * nights : 0;
   const majordomoCost = data.majordomo ? 100 : 0;
-  const total = roomCost + breakfastCost + majordomoCost;
+  const nightlyCost = (room ? room.price : 0) + (data.breakfast ? 10 * occupants : 0);
+  const total = isIndefinite ? nightlyCost : roomCost + breakfastCost + majordomoCost;
   const supplements = [
-    data.breakfast ? `Petit-dejeuner (${formatRpCost(breakfastCost)})` : "",
-    data.majordomo ? `Majordome (${formatRpCost(majordomoCost)})` : ""
+    data.breakfast ? (isIndefinite ? `Petit-dejeuner (${formatRpCost(10 * occupants)} par nuit)` : `Petit-dejeuner (${formatRpCost(breakfastCost)})`) : "",
+    data.majordomo ? (isIndefinite ? "Majordome (1 doree, frais fixe)" : `Majordome (${formatRpCost(majordomoCost)})`) : ""
   ].filter(Boolean);
   return {
     room,
     nights,
     occupants,
+    isIndefinite,
     total,
-    totalLabel: formatRpCost(total),
+    totalLabel: isIndefinite ? `${formatRpCost(total)} / nuit${data.majordomo ? " + 1 doree de majordome" : ""}` : formatRpCost(total),
     supplements: supplements.length ? supplements : ["Aucun supplement"]
   };
 }
@@ -393,6 +398,10 @@ function updateReservationTotal() {
   reservationTotal.textContent = cost.totalLabel;
   if (!cost.room) {
     reservationDetail.textContent = "Choisissez une chambre pour commencer le calcul.";
+    return;
+  }
+  if (cost.isIndefinite) {
+    reservationDetail.textContent = `${cost.room.label}, tarif indique a la nuit, ${cost.occupants} occupant(s). Supplements : ${cost.supplements.join(", ")}.`;
     return;
   }
   reservationDetail.textContent = `${cost.room.label} x ${cost.nights} nuit(s), ${cost.occupants} occupant(s). Supplements : ${cost.supplements.join(", ")}.`;
