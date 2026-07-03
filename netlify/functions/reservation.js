@@ -1,5 +1,5 @@
 const jsonHeaders = {
-  "Content-Type": "application/json",
+  "Content-Type": "application/json; charset=utf-8",
   "Access-Control-Allow-Origin": "https://au-feu-dormant.netlify.app",
   "Access-Control-Allow-Headers": "Content-Type",
   "Access-Control-Allow-Methods": "POST, OPTIONS"
@@ -35,28 +35,28 @@ exports.handler = async (event) => {
   }
 
   const message = [
-    "## 🏨 Nouvelle réservation RP",
+    "## Nouvelle reservation RP",
     "",
     `**Nom du personnage :** ${characterName}`,
     `**Signature RP :** ${signature}`,
-    `**Chambre réservée :** ${room}`,
-    `**Date d'arrivée :** ${clean(payload.arrivalDate, 120) || "Non précisée"}`,
-    `**Durée du séjour :** ${clean(payload.duration, 80) || "Non précisée"}`,
+    `**Chambre reservee :** ${room}`,
+    `**Date d'arrivee :** ${clean(payload.arrivalDate, 120) || "Non precisee"}`,
+    `**Duree du sejour :** ${clean(payload.duration, 80) || "Non precisee"}`,
     `**Nombre d'occupants :** ${clean(payload.occupants, 20) || "1"}`,
-    `**Suppléments :** ${formatList(payload.supplements)}`,
-    `**Liste blanche :** ${cleanMultiline(payload.allowedGuests, 700) || "Non renseignée"}`,
+    `**Supplements :** ${formatList(payload.supplements)}`,
+    `**Liste blanche :** ${cleanMultiline(payload.allowedGuests, 700) || "Non renseignee"}`,
     `**Garde du corps :** ${clean(payload.bodyguard, 120) || "Aucun"}`,
     `**Renseignement escorte :** ${cleanMultiline(payload.bodyguardDetails, 600) || "Aucun"}`,
-    `**Demandes particulières :** ${clean(payload.requests, 700) || "Aucune"}`,
+    `**Demandes particulieres :** ${clean(payload.requests, 700) || "Aucune"}`,
     `**Commentaire :** ${clean(payload.comment, 900) || "Aucun"}`,
     "",
-    "## 💰 Coût total RP",
-    clean(payload.total, 80) || "Non calculé"
+    "## Cout total RP",
+    clean(payload.total, 80) || "Non calcule"
   ].join("\n");
 
   const discordResponse = await fetch(webhookUrl, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json; charset=utf-8" },
     body: JSON.stringify({
       content: message,
       allowed_mentions: { parse: [] }
@@ -79,7 +79,7 @@ function response(statusCode, body) {
 }
 
 function clean(value, maxLength) {
-  return String(value || "")
+  return plainText(value)
     .replace(/[\u0000-\u001f\u007f]/g, " ")
     .replace(/\s+/g, " ")
     .trim()
@@ -87,7 +87,7 @@ function clean(value, maxLength) {
 }
 
 function cleanMultiline(value, maxLength) {
-  return String(value || "")
+  return plainText(value)
     .replace(/[\u0000-\u0009\u000b-\u001f\u007f]/g, " ")
     .replace(/[ \t]+/g, " ")
     .replace(/\n{3,}/g, "\n\n")
@@ -96,6 +96,13 @@ function cleanMultiline(value, maxLength) {
 }
 
 function formatList(value) {
-  if (!Array.isArray(value) || value.length === 0) return "Aucun supplément";
-  return value.map((item) => clean(item, 120)).filter(Boolean).join(", ") || "Aucun supplément";
+  if (!Array.isArray(value) || value.length === 0) return "Aucun supplement";
+  return value.map((item) => clean(item, 120)).filter(Boolean).join(", ") || "Aucun supplement";
+}
+
+function plainText(value) {
+  return String(value || "")
+    .replace(/\uFFFD/g, "e")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 }
