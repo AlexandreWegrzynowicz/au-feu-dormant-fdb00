@@ -100,10 +100,25 @@ const starterData = {
 };
 
 let data = normalizeData(loadData());
+let backroomData = normalizeBackroomData(loadBackroomLocalData());
 let adminShowAllQuests = false;
 let adminShowAllTravelers = false;
 let adminShowAllRumors = false;
 let onlineSaveTimer = null;
+let backroomSaveTimer = null;
+
+const backroomGrades = [
+  "Rat des Rues",
+  "Passeur",
+  "Receleur",
+  "Contrebandier",
+  "Corbeau",
+  "Main Cachee",
+  "Capitaine",
+  "Emissaire d'Hector",
+  "Bras d'Hector",
+  "Maitre de l'Arriere-salle"
+];
 
 function loadData() {
   try {
@@ -120,6 +135,25 @@ function normalizeData(value) {
     travelers: Array.isArray(value.travelers) ? value.travelers : [],
     rumors: Array.isArray(value.rumors) ? value.rumors : structuredClone(starterData.rumors),
     history: Array.isArray(value.history) ? value.history : []
+  };
+}
+
+function loadBackroomLocalData() {
+  try {
+    return JSON.parse(localStorage.getItem("afd_backroom_data_v1") || "null") || starterBackroomData();
+  } catch {
+    return starterBackroomData();
+  }
+}
+
+function starterBackroomData() {
+  return { characters: [], history: [] };
+}
+
+function normalizeBackroomData(value) {
+  return {
+    characters: Array.isArray(value?.characters) ? value.characters : [],
+    history: Array.isArray(value?.history) ? value.history : []
   };
 }
 
@@ -155,15 +189,67 @@ async function loadOnlineAdminData() {
   try {
     const onlineData = await window.afdSupabase.loadState(data);
     data = normalizeData(onlineData);
+    await loadOnlineBackroomData();
     localStorage.setItem(storageKey, JSON.stringify(data));
     renderAllAdmin();
     renderQuestPreview();
     renderTravelerPreview();
+    renderBackroomPreview();
     showSuccess("Registre en ligne charge");
   } catch (error) {
     console.warn("Chargement Supabase impossible", error);
     showSuccess("Registre en ligne indisponible, copie locale ouverte.");
   }
+}
+
+async function loadOnlineBackroomData() {
+  if (!window.afdSupabase?.client) return;
+  try {
+    const { data: row, error } = await window.afdSupabase.client
+      .from("backroom_state")
+      .select("data")
+      .eq("id", "main")
+      .maybeSingle();
+    if (error) throw error;
+    backroomData = normalizeBackroomData(row?.data || backroomData);
+    localStorage.setItem("afd_backroom_data_v1", JSON.stringify(backroomData));
+  } catch (error) {
+    console.warn("Chargement Arriere-salle impossible", error);
+    showSuccess("Arriere-salle indisponible, copie locale ouverte.");
+  }
+}
+
+function saveBackroomData() {
+  try {
+    localStorage.setItem("afd_backroom_data_v1", JSON.stringify(backroomData));
+    queueBackroomOnlineSave();
+    return true;
+  } catch (error) {
+    console.error("Sauvegarde Arriere-salle impossible", error);
+    showSuccess("Sauvegarde Arriere-salle impossible.");
+    return false;
+  }
+}
+
+function queueBackroomOnlineSave() {
+  if (!window.afdSupabase?.client) return;
+  clearTimeout(backroomSaveTimer);
+  backroomSaveTimer = setTimeout(async () => {
+    try {
+      const { error } = await window.afdSupabase.client
+        .from("backroom_state")
+        .upsert({
+          id: "main",
+          data: backroomData,
+          updated_at: new Date().toISOString()
+        });
+      if (error) throw error;
+      showSuccess("Arriere-salle publiee");
+    } catch (error) {
+      console.warn("Publication Arriere-salle refusee", error);
+      showSuccess("Sauvegarde locale faite, publication Arriere-salle refusee.");
+    }
+  }, 350);
 }
 
 function showSuccess(message) {
@@ -196,6 +282,7 @@ function renderAllAdmin() {
   renderTravelerAdmin();
   renderRumorAdmin();
   renderHistoryAdmin();
+  renderBackroomAdmin();
 }
 
 function bindImageInput(formSelector, fileName, targetName, previewCallback) {
@@ -310,6 +397,61 @@ function renderHistoryAdmin() {
   `).join("");
 }
 
+function renderBackroomAdmin() {
+  const list = document.querySelector("#admin-backroom-list");
+  if (!list) return;
+  list.innerHTML = backroomData.characters.map((character) => `
+    <article class="admin-row">
+      <div>
+        <p class="eyebrow">${escapeHtml(backroomGrades[(Number(character.grade || 1) - 1)] || backroomGrades[0])} · ${escapeHtml(character.xp || 0)} XP</p>
+        <h3>${escapeHtml(character.name || "Nom inconnu")}</h3>
+        <p>${escapeHtml(character.hectorReputation || "Reputation non renseignee")} · ${escapeHtml(character.notoriety || "Notoriete non renseignee")}</p>
+        <small>${escapeHtml(character.lastActivity || "Aucune activite visible.")}</small>
+      </div>
+      <div class="row-actions">
+        <button class="button secondary" type="button" data-edit-backroom="${character.id}">Modifier</button>
+        <button class="button secondary" type="button" data-delete-backroom="${character.id}">Supprimer</button>
+      </div>
+    </article>
+  `).join("") || `<p class="empty-state">Aucun nom dans l'Arriere-salle.</p>`;
+  renderBackroomHistory();
+}
+
+function renderBackroomHistory() {
+  const history = document.querySelector("#admin-backroom-history");
+  if (!history) return;
+  history.innerHTML = (backroomData.history || []).slice().reverse().map((entry) => `
+    <article class="admin-row">
+      <div>
+        <p class="eyebrow">${escapeHtml(entry.date || "")}</p>
+        <p>${escapeHtml(entry.description || "Entree sans detail.")}</p>
+      </div>
+    </article>
+  `).join("") || `<p class="empty-state">Le carnet est encore vide.</p>`;
+}
+
+function renderBackroomPreview() {
+  const form = document.querySelector("#backroom-form");
+  const preview = document.querySelector("#backroom-preview");
+  if (!form || !preview) return;
+  const item = Object.fromEntries(new FormData(form).entries());
+  const grade = backroomGrades[(Number(item.grade || 1) - 1)] || backroomGrades[0];
+  const xp = Math.max(0, Number(item.xp || 0));
+  const nextXp = Math.max(1, Number(item.nextXp || 100));
+  preview.innerHTML = `
+    <p class="eyebrow">Apercu Arriere-salle</p>
+    <article class="backroom-card compact">
+      ${item.portrait ? `<img class="traveler-portrait" src="${item.portrait}" alt="">` : `<div class="traveler-portrait placeholder">${initials(item.name || "Ombre")}</div>`}
+      <div class="backroom-card-body">
+        <p class="grade-seal"><span>${escapeHtml(item.grade || "1")}</span> ${escapeHtml(grade)}</p>
+        <h3>${escapeHtml(item.name || "Nouveau nom")}</h3>
+        ${bar("Experience", `${xp} / ${nextXp} XP`, Math.round((xp / nextXp) * 100))}
+        <p>${escapeHtml(item.publicNote || "Aucune note visible.")}</p>
+      </div>
+    </article>
+  `;
+}
+
 document.querySelector("#quest-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
@@ -389,6 +531,84 @@ document.querySelector("#rumor-form").addEventListener("submit", (event) => {
   showSuccess(existing >= 0 ? "Murmure corrigé" : "Murmure accroché près du feu");
 });
 
+document.querySelector("#backroom-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const item = Object.fromEntries(new FormData(form).entries());
+  item.portrait = await imageFromForm(form, "portraitFile", item.portrait);
+  delete item.portraitFile;
+  item.id = item.id || uid("b");
+  item.grade = Math.max(1, Math.min(10, Number(item.grade || 1)));
+  item.xp = Math.max(0, Number(item.xp || 0));
+  item.nextXp = Math.max(1, Number(item.nextXp || 100));
+  delete item.xpDelta;
+  const existing = backroomData.characters.findIndex((character) => character.id === item.id);
+  if (existing >= 0) backroomData.characters[existing] = item;
+  else backroomData.characters.unshift(item);
+  backroomData.history.push({
+    id: uid("bh"),
+    date: new Date().toLocaleDateString("fr-FR"),
+    description: `Arriere-salle mise a jour : ${item.name}`
+  });
+  form.reset();
+  form.querySelector("[name=id]").value = "";
+  saveBackroomData();
+  renderBackroomAdmin();
+  renderBackroomPreview();
+  showSuccess(existing >= 0 ? "Nom corrige dans l'Arriere-salle" : "Nom inscrit dans l'Arriere-salle");
+});
+
+document.querySelector("[data-reset-backroom]")?.addEventListener("click", () => {
+  document.querySelector("#backroom-form").reset();
+  document.querySelector("#backroom-form [name=id]").value = "";
+  renderBackroomPreview();
+});
+
+document.querySelector("[data-apply-xp]")?.addEventListener("click", () => {
+  const form = document.querySelector("#backroom-form");
+  const xp = Math.max(0, Number(form.elements.xp.value || 0));
+  const delta = Number(form.elements.xpDelta.value || 0);
+  form.elements.xp.value = Math.max(0, xp + delta);
+  form.elements.lastXpGain.value = `${delta >= 0 ? "+" : ""}${delta} XP`;
+  form.elements.xpDelta.value = 0;
+  renderBackroomPreview();
+});
+
+document.querySelector("#save-backroom-password")?.addEventListener("click", async () => {
+  const field = document.querySelector("#backroom-password");
+  const password = String(field?.value || "");
+  if (password.length < 4) {
+    showSuccess("Mot trop court.");
+    return;
+  }
+  if (!window.afdSupabase?.client) {
+    showSuccess("Supabase indisponible.");
+    return;
+  }
+  const passwordHash = await sha256Hex(password);
+  const { error } = await window.afdSupabase.client
+    .from("backroom_settings")
+    .upsert({
+      id: "main",
+      password_hash: passwordHash,
+      updated_at: new Date().toISOString()
+    });
+  if (error) {
+    console.warn("Mot Arriere-salle refuse", error);
+    showSuccess("Changement du mot refuse par Supabase.");
+    return;
+  }
+  backroomData.history.push({
+    id: uid("bh"),
+    date: new Date().toLocaleDateString("fr-FR"),
+    description: "Le mot de passe joueur de l'Arriere-salle a ete change."
+  });
+  saveBackroomData();
+  renderBackroomAdmin();
+  field.value = "";
+  showSuccess("Mot de l'Arriere-salle change.");
+});
+
 document.querySelector("[data-reset-rumor]").addEventListener("click", () => {
   document.querySelector("#rumor-form").reset();
   document.querySelector("#rumor-form [name=id]").value = "";
@@ -421,6 +641,8 @@ document.addEventListener("click", (event) => {
   const deleteTraveler = event.target.closest("[data-delete-traveler]");
   const editRumor = event.target.closest("[data-edit-rumor]");
   const deleteRumor = event.target.closest("[data-delete-rumor]");
+  const editBackroom = event.target.closest("[data-edit-backroom]");
+  const deleteBackroom = event.target.closest("[data-delete-backroom]");
   const deleteHistory = event.target.closest("[data-delete-history]");
 
   if (editQuest) fillForm("#quest-form", data.quests.find((quest) => quest.id === editQuest.dataset.editQuest));
@@ -446,6 +668,19 @@ document.addEventListener("click", (event) => {
     saveData();
     renderAllAdmin();
     showSuccess("Murmure retiré");
+  }
+  if (editBackroom) fillForm("#backroom-form", backroomData.characters.find((character) => character.id === editBackroom.dataset.editBackroom));
+  if (deleteBackroom && confirm("Supprimer ce nom de l'Arriere-salle ?")) {
+    backroomData.characters = backroomData.characters.filter((character) => character.id !== deleteBackroom.dataset.deleteBackroom);
+    backroomData.history.push({
+      id: uid("bh"),
+      date: new Date().toLocaleDateString("fr-FR"),
+      description: "Un nom a ete retire de l'Arriere-salle."
+    });
+    saveBackroomData();
+    renderBackroomAdmin();
+    renderBackroomPreview();
+    showSuccess("Nom retire de l'Arriere-salle");
   }
   if (deleteHistory) {
     data.history = data.history.filter((entry) => entry.id !== deleteHistory.dataset.deleteHistory);
@@ -495,6 +730,7 @@ function fillForm(selector, item) {
   updateRangeOutputs();
   renderQuestPreview();
   renderTravelerPreview();
+  renderBackroomPreview();
 }
 
 function updateRangeOutputs() {
@@ -652,17 +888,26 @@ function normalizeSearch(value) {
   return String(value || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
+async function sha256Hex(value) {
+  const encoded = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", encoded);
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 renderAllAdmin();
 renderQuestPreview();
 renderTravelerPreview();
+renderBackroomPreview();
 updateRangeOutputs();
 document.querySelector("#quest-form").addEventListener("input", renderQuestPreview);
 document.querySelector("#traveler-admin-form").addEventListener("input", (event) => {
   if (event.target.matches('input[type="range"]')) updateRangeOutputs();
   renderTravelerPreview();
 });
+document.querySelector("#backroom-form")?.addEventListener("input", renderBackroomPreview);
 bindImageInput("#quest-form", "imageFile", "image", renderQuestPreview);
 bindImageInput("#traveler-admin-form", "portraitFile", "portrait", renderTravelerPreview);
+bindImageInput("#backroom-form", "portraitFile", "portrait", renderBackroomPreview);
 
 const loginForm = document.querySelector("#login-form");
 loginForm?.addEventListener("submit", async (event) => {

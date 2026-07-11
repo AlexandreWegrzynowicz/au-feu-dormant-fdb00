@@ -6,3 +6,8 @@
   for = "/mj.html"
   [headers.values]
     X-Robots-Tag = "noindex"
+
+[[headers]]
+  for = "/arriere-salle.html"
+  [headers.values]
+    X-Robots-Tag = "noindex"

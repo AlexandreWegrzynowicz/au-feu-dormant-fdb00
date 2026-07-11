@@ -116,3 +116,52 @@ values (
   }'::jsonb
 )
 on conflict (id) do nothing;
+
+-- Arriere-salle - registre prive de progression RP
+-- Les joueurs ne lisent pas cette table directement.
+-- Ils passent par les Netlify Functions apres mot de passe.
+
+create table if not exists public.backroom_state (
+  id text primary key default 'main',
+  data jsonb not null default '{"characters":[],"history":[]}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.backroom_state enable row level security;
+
+drop policy if exists "Arriere-salle reservee aux MJ connectes" on public.backroom_state;
+create policy "Arriere-salle reservee aux MJ connectes"
+on public.backroom_state
+for all
+to authenticated
+using (id = 'main')
+with check (id = 'main');
+
+insert into public.backroom_state (id, data)
+values (
+  'main',
+  '{
+    "characters": [],
+    "history": []
+  }'::jsonb
+)
+on conflict (id) do nothing;
+
+create table if not exists public.backroom_settings (
+  id text primary key default 'main',
+  password_hash text not null,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.backroom_settings enable row level security;
+
+drop policy if exists "Mot Arriere-salle reserve aux MJ connectes" on public.backroom_settings;
+create policy "Mot Arriere-salle reserve aux MJ connectes"
+on public.backroom_settings
+for all
+to authenticated
+using (id = 'main')
+with check (id = 'main');
+
+-- Le mot de passe joueur est defini depuis la console MJ.
+-- Seul son hash SHA-256 est enregistre.

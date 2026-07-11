@@ -51,6 +51,7 @@
           <button class="filter" type="button" data-admin-tab="travelers">Registre des voyageurs</button>
           <button class="filter" type="button" data-admin-tab="rumors">Murmures de l'auberge</button>
           <button class="filter" type="button" data-admin-tab="history">Chroniques</button>
+          <button class="filter" type="button" data-admin-tab="backroom">Arri&egrave;re-salle</button>
           <button class="filter" type="button" data-admin-tab="data">Registre</button>
         </div>
 
@@ -261,6 +262,101 @@
             <div>
               <h2>Chroniques du feu</h2>
               <div id="admin-history-list" class="admin-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="admin-panel" id="admin-backroom">
+          <div class="admin-layout">
+            <div class="admin-editor">
+              <form id="backroom-form" class="form-panel">
+                <input type="hidden" name="id">
+                <h2>Inscrire dans l'Arri&egrave;re-salle</h2>
+                <label>Nom RP
+                  <input name="name" required placeholder="Thorring">
+                </label>
+                <label>Portrait
+                  <input name="portraitFile" type="file" accept="image/png,image/jpeg,image/webp">
+                </label>
+                <label>Portrait actuel
+                  <input name="portrait" placeholder="Le portrait import&eacute; appara&icirc;tra ici automatiquement.">
+                </label>
+                <label>Grade
+                  <select name="grade">
+                    <option value="1">Rat des Rues</option>
+                    <option value="2">Passeur</option>
+                    <option value="3">Receleur</option>
+                    <option value="4">Contrebandier</option>
+                    <option value="5">Corbeau</option>
+                    <option value="6">Main Cach&eacute;e</option>
+                    <option value="7">Capitaine</option>
+                    <option value="8">&Eacute;missaire d'Hector</option>
+                    <option value="9">Bras d'Hector</option>
+                    <option value="10">Ma&icirc;tre de l'Arri&egrave;re-salle</option>
+                  </select>
+                </label>
+                <label>XP actuelle
+                  <input name="xp" type="number" min="0" value="0">
+                </label>
+                <label>XP pour le prochain grade
+                  <input name="nextXp" type="number" min="1" value="100">
+                </label>
+                <label>Ajouter ou retirer de l'XP
+                  <span class="range-field">
+                    <input name="xpDelta" type="number" value="0">
+                    <button class="button secondary" type="button" data-apply-xp>Appliquer</button>
+                  </span>
+                </label>
+                <label>R&eacute;putation aupr&egrave;s d'Hector
+                  <input name="hectorReputation" placeholder="Ex. Fiable, utile, surveill&eacute;...">
+                </label>
+                <label>Notori&eacute;t&eacute;
+                  <input name="notoriety" placeholder="Ex. Discret, connu des quais...">
+                </label>
+                <label>Missions accomplies
+                  <textarea name="completedMissions" placeholder="Une mission par ligne."></textarea>
+                </label>
+                <label>R&eacute;compenses visibles
+                  <textarea name="rewards" placeholder="Une r&eacute;compense par ligne."></textarea>
+                </label>
+                <label>Objets remis &agrave; Hector
+                  <textarea name="itemsGiven" placeholder="Un objet par ligne."></textarea>
+                </label>
+                <label>Dernier gain d'exp&eacute;rience
+                  <input name="lastXpGain" placeholder="+15 XP - Livraison discr&egrave;te">
+                </label>
+                <label>Derni&egrave;re activit&eacute; RP visible
+                  <input name="lastActivity" placeholder="Vu pr&egrave;s de la porte du fond.">
+                </label>
+                <label>Note visible
+                  <textarea name="publicNote" placeholder="Visible par les joueurs autoris&eacute;s."></textarea>
+                </label>
+                <label>Note priv&eacute;e MJ
+                  <textarea name="privateNote" placeholder="Jamais envoy&eacute;e aux joueurs."></textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="button primary" type="submit">Enregistrer l'ombre</button>
+                  <button class="button secondary" type="button" data-reset-backroom>Annuler</button>
+                </div>
+              </form>
+              <aside id="backroom-preview" class="live-preview"></aside>
+            </div>
+            <div>
+              <h2>Noms de l'Arri&egrave;re-salle</h2>
+              <div id="admin-backroom-list" class="admin-list"></div>
+              <div class="form-panel password-panel">
+                <h3>Mot de passe joueur</h3>
+                <p>Le mot est stock&eacute; sous forme de hash dans Supabase. Il n'est pas &eacute;crit dans le code.</p>
+                <label>Nouveau mot de passe
+                  <input id="backroom-password" type="password" autocomplete="new-password" placeholder="Nouveau mot">
+                </label>
+                <button id="save-backroom-password" class="button secondary" type="button">Changer le mot</button>
+              </div>
+              <div class="form-panel">
+                <h3>Carnet de l'Arri&egrave;re-salle</h3>
+                <p>Les changements importants restent visibles ici pour le ma&icirc;tre de jeu.</p>
+                <div id="admin-backroom-history" class="admin-list"></div>
+              </div>
             </div>
           </div>
         </section>

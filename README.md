@@ -38,6 +38,7 @@ Version 2.0 en preparation : registre MJ connecte a Supabase.
 
 - `index.html` : portail public.
 - `mj.html` : console MJ protegee par Supabase Auth.
+- `arriere-salle.html` : registre collectif prive, accessible par mot de passe partage.
 
 ## Mise en ligne avec GitHub Pages
 
@@ -77,6 +78,28 @@ Avant usage :
 3. Ouvrir Supabase > Authentication > Users.
 4. Creer le compte du maitre de jeu.
 5. Se connecter sur `mj.html`.
+
+### Arriere-salle
+
+L'Arriere-salle utilise des tables Supabase separees :
+
+- `backroom_state` : progression RP et notes MJ ;
+- `backroom_settings` : hash du mot de passe joueur.
+
+Les joueurs ne lisent jamais ces tables directement. Ils passent par les fonctions Netlify :
+
+- `/.netlify/functions/backroom-login`
+- `/.netlify/functions/backroom-data`
+
+Variables Netlify obligatoires :
+
+```text
+SUPABASE_URL
+SUPABASE_SERVICE_ROLE_KEY
+BACKROOM_SESSION_SECRET
+```
+
+Le mot de passe joueur n'est pas stocke en clair dans le depot. Apres avoir lance `supabase-schema.sql`, definissez-le depuis l'onglet MJ `Arriere-salle`.
 
 Ne jamais publier :
 
