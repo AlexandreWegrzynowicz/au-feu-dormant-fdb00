@@ -3,379 +3,83 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Au Feu Dormant | Portail RP fantasy communautaire</title>
-  <meta name="description" content="Portail RP fantasy communautaire : incarnez votre personnage, rencontrez d'autres voyageurs, suivez les quêtes et rejoignez l'aventure via Discord.">
-  <meta name="keywords" content="Au Feu Dormant, portail RP fantasy, auberge RP, quêtes RP, voyageurs RP, réputation RP, roleplay Warcraft, serveur RP Warcraft">
-  <meta property="og:title" content="Au Feu Dormant">
-  <meta property="og:description" content="Entrez dans une auberge où chaque voyageur apporte son histoire.">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Au Feu Dormant">
-  <meta property="og:image" content="assets/og-image.svg">
-  <meta name="theme-color" content="#120806">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/styles.css">
+  <title>Au Feu Dormant - Console RP</title>
+  <meta name="description" content="Prototype V2 d'application RP pour joueurs et maitre de jeu.">
+  <link rel="stylesheet" href="assets/css/app.css?v=20260714523000">
 </head>
 <body>
-  <header class="site-header">
-    <a class="brand" href="#accueil" aria-label="Retour à l'accueil">
-      <span class="brand-mark">AFD</span>
-      <span>Au Feu Dormant</span>
-    </a>
-    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">Menu</button>
-    <nav id="site-nav" class="site-nav" aria-label="Navigation principale">
-      <a href="#accueil">Accueil</a>
-      <a href="#aventures">Aventures</a>
-      <a href="#voyageurs">Voyageurs</a>
-      <a href="#quetes">Contrats</a>
-      <a href="#reservations">R&eacute;servations RP</a>
-      <a href="#rejoindre">Rejoindre</a>
-      <a class="nav-cta" href="https://discord.gg/atbfrdFfNr" target="_blank" rel="noopener">Salle commune</a>
-    </nav>
-  </header>
-
-  <main>
-    <section id="accueil" class="hero">
-      <div class="hero-art" aria-hidden="true">
-        <div class="lantern"><span></span></div>
-        <div class="ember ember-one"></div>
-        <div class="ember ember-two"></div>
-        <div class="paper paper-one"></div>
-      </div>
-      <div class="hero-content">
-        <p class="eyebrow">Portail RP fantasy communautaire</p>
-        <h1>Au Feu Dormant</h1>
-        <p class="hero-lead">Entrez dans une auberge où chaque voyageur apporte son histoire.</p>
-        <div class="hero-promise" aria-label="Promesse du portail">
-          <p>Incarnez votre personnage.</p>
-          <p>Rencontrez d'autres aventuriers.</p>
-          <p>Participez à des quêtes.</p>
-          <p>Laissez votre nom entrer dans les chroniques.</p>
-        </div>
-        <div class="hero-actions">
-          <a class="button primary" href="https://discord.gg/atbfrdFfNr" target="_blank" rel="noopener">Pousser la porte</a>
-          <a class="button secondary" href="#quetes">Voir les quêtes</a>
-        </div>
-        <p class="discord-note">La porte mène à la salle commune</p>
-        <p class="signature">Une taverne est un décor. Une aventure est une promesse. Votre personnage est le véritable héros.</p>
-      </div>
-      <aside class="hero-panel" aria-label="Ce qui vous attend">
-        <h2>Ce qui vous attend</h2>
-        <ul>
-          <li>Des voyageurs venus des quatre horizons.</li>
-          <li>Des contrats affichés près du comptoir.</li>
-          <li>Des rumeurs qui circulent plus vite que la bière.</li>
-          <li>Une porte ouverte vers une nouvelle histoire.</li>
-        </ul>
-      </aside>
-    </section>
-
-    <section id="aventures" class="section adventure-band">
-      <div class="section-heading">
-        <p class="eyebrow">Aventures</p>
-        <h2>Chaque voyageur apporte une histoire. Chaque histoire laisse une trace.</h2>
-        <p>Au Feu Dormant, les rencontres deviennent des pistes, les pistes deviennent des récits, et les récits finissent tôt ou tard dans les chroniques.</p>
-      </div>
-      <div class="feature-grid">
-        <article>
-          <span class="icon">01</span>
-          <h3>Trouver sa place</h3>
-          <p>Mercenaire, marin, marchand, mage, soigneur, hors-la-loi ou érudit : chaque voyageur peut trouver une chaise, une dette ou une piste à suivre.</p>
-        </article>
-        <article>
-          <span class="icon">02</span>
-          <h3>Croiser d'autres voyageurs</h3>
-          <p>Autour du feu, on trouve des alliés, des rivaux, des clients, des compagnons et parfois des ennuis très bien habillés.</p>
-        </article>
-        <article>
-          <span class="icon">03</span>
-          <h3>Laisser son nom dans les chroniques</h3>
-          <p>Réputation, notoriété, rumeurs et contrats gardent la mémoire de ceux qui ont fait parler d'eux dans la salle commune.</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="voyageurs" class="section">
-      <div class="section-heading">
-        <p class="eyebrow">Voyageurs</p>
-        <h2>Présentez les personnages, pas seulement le décor.</h2>
-        <p>Chaque carte donne une accroche RP rapide : qui est là, ce qu'on raconte, et quelle réputation précède le personnage.</p>
-      </div>
-      <label class="search-control">Rechercher un personnage
-        <input id="traveler-search" type="search" placeholder="Nom, guilde, faction, race, métier, rumeur...">
-      </label>
-      <div class="traveler-grid" id="traveler-grid"></div>
-      <button id="toggle-travelers" class="button secondary reveal-button" type="button" hidden>Dérouler le registre</button>
-    </section>
-
-    <section id="voyageur-detail" class="section traveler-detail" hidden></section>
-
-    <section id="fiche" class="section split-section">
-      <div>
-        <p class="eyebrow">Registre des voyageurs</p>
-        <h2>Inscrivez votre nom au registre.</h2>
-        <p>Présentez votre voyageur comme on le ferait au comptoir : un nom, une origine, une raison d'entrer, et la rumeur que l'on murmurera peut-être après son passage.</p>
-      </div>
-      <form id="traveler-form" class="form-panel">
-        <label><span class="label-row">Nom du personnage <button class="hint" type="button" aria-label="Aide : nom du personnage" title="Le nom de votre personnage, pas votre nom Discord. C'est son identité dans l'histoire.">!</button></span>
-          <input name="name" required maxlength="48" placeholder="Ex. Maëlys Cornebrume">
-        </label>
-        <label><span class="label-row">Portrait <button class="hint" type="button" aria-label="Aide : portrait" title="Image optionnelle utilisée seulement pour votre fiche générée et le JPEG. Elle ne publie rien sur le site.">!</button></span>
-          <input name="portraitFile" type="file" accept="image/png,image/jpeg,image/webp">
-        </label>
-        <label><span class="label-row">Faction <button class="hint" type="button" aria-label="Aide : faction" title="L'allégeance de votre personnage. Elle aide à situer son origine, sans définir toute sa personnalité.">!</button></span>
-          <select name="faction">
-            <option>Alliance</option>
-            <option>Horde</option>
-            <option>Neutre</option>
-            <option>Sans allégeance</option>
-          </select>
-        </label>
-        <label><span class="label-row">Peuple <button class="hint" type="button" aria-label="Aide : peuple" title="Race ou origine de votre personnage : humain, orc, pandaren, elfe, etc.">!</button></span>
-          <input name="people" list="people-list" placeholder="Humain, Orc, Pandaren...">
-        </label>
-        <datalist id="people-list">
-          <option>Humain</option><option>Nain</option><option>Gnome</option><option>Elfe de la Nuit</option><option>Draeneï</option><option>Worgen</option><option>Pandaren</option><option>Orc</option><option>Tauren</option><option>Troll</option><option>Réprouvé</option><option>Elfe de Sang</option><option>Gobelin</option>
-        </datalist>
-        <label><span class="label-row">Situation actuelle <button class="hint" type="button" aria-label="Aide : situation actuelle" title="Ce que votre personnage est ou fait en arrivant : barde, marin, mercenaire, marchand...">!</button></span>
-          <select name="situation">
-            <option>Aventurier</option><option>Mercenaire</option><option>Soldat</option><option>Marin</option><option>Marchand</option><option>Artisan</option><option>Barde</option><option>Forgeron</option><option>Alchimiste</option><option>Chasseur</option><option>Chasseur de primes</option><option>Mage</option><option>Prêtre</option><option>Soigneur</option><option>Érudit</option><option>Noble</option><option>Explorateur</option><option>Contrebandier</option><option>Hors-la-loi</option><option>Sans activité connue</option><option>Autre</option>
-          </select>
-        </label>
-        <label><span class="label-row">Guilde <button class="hint" type="button" aria-label="Aide : guilde" title="Guilde, équipage, ordre, maison ou groupe auquel votre personnage appartient. Laissez vide s'il voyage seul.">!</button></span>
-          <input name="guild" maxlength="64" placeholder="Ex. Les Veilleurs du Quai">
-        </label>
-        <label><span class="label-row">Ce qui vous amène au Feu Dormant <button class="hint" type="button" aria-label="Aide : lien avec l'auberge" title="La raison de votre arrivée à l'auberge. Cette information apparaît sur votre fiche pour donner une accroche de rencontre.">!</button></span>
-          <select name="reason">
-            <option>Chercher du travail</option><option>Trouver des compagnons</option><option>Suivre une rumeur</option><option>Rejoindre une expédition</option><option>Chercher quelqu'un</option><option>Livrer un message</option><option>Trouver refuge</option><option>Régler une dette</option><option>Commencer une nouvelle vie</option><option>Autre</option>
-          </select>
-        </label>
-        <label><span class="label-row">RP recherché <button class="hint" type="button" aria-label="Aide : RP recherche" title="Le type de scènes que vous cherchez à jouer. Cette information apparaît sur votre fiche pour aider les autres à vous proposer du RP.">!</button></span>
-          <select name="rp">
-            <option>Aventure</option><option>Commerce</option><option>Enquête</option><option>Diplomatie</option><option>Intrigue</option><option>Exploration</option><option>Conflit</option><option>Vie de taverne</option><option>Libre</option>
-          </select>
-        </label>
-        <label><span class="label-row">Rumeur publique <button class="hint" type="button" aria-label="Aide : rumeur publique" title="Une phrase que les autres peuvent entendre à propos de votre personnage. Elle donne une accroche RP rapide.">!</button></span>
-          <textarea name="rumor" maxlength="180" placeholder="Une phrase que les autres peuvent entendre à son sujet."></textarea>
-        </label>
-        <label><span class="label-row">Description RP <button class="hint" type="button" aria-label="Aide : description RP" title="Décrivez votre personnage : allure, caractère, manière de parler, traces visibles de son histoire.">!</button></span>
-          <textarea name="description" maxlength="600" placeholder="Qui est votre personnage quand il pousse la porte ?"></textarea>
-        </label>
-        <label><span class="label-row">Description du logis <button class="hint" type="button" aria-label="Aide : description du logis" title="Décrivez son coin à l'auberge : chambre, affaires posées, ambiance, détail étrange ou familier.">!</button></span>
-          <textarea name="lodgingDescription" maxlength="500" placeholder="Chambre, table habituelle, affaires visibles, ambiance du logis..."></textarea>
-        </label>
-        <label><span class="label-row">Chronique récente <button class="hint" type="button" aria-label="Aide : chronique récente" title="Un fait récent de votre personnage. Cette information apparaît sur la fiche et peut aider le MJ à amorcer une rumeur ou un contrat.">!</button></span>
-          <textarea name="recentHistory" maxlength="400" placeholder="Un fait recent, une arrivee, une dette, une rencontre, une piste..."></textarea>
-        </label>
-        <button class="button primary" type="submit">Inscrire au registre</button>
+  <section id="auth-shell" class="auth-shell" hidden aria-labelledby="auth-title">
+    <div class="auth-panel">
+      <span class="brand-mark auth-mark">AFD</span>
+      <p class="eyebrow">Portail securise</p>
+      <h1 id="auth-title">Ouvrir mon registre</h1>
+      <p>Recevez un lien de connexion par e-mail. Aucun mot de passe joueur n'est necessaire.</p>
+      <form id="magic-link-form" class="auth-form">
+        <label for="auth-email">Adresse e-mail</label>
+        <input id="auth-email" name="email" type="email" autocomplete="email" required placeholder="vous@exemple.fr">
+        <button type="submit" class="primary-button">Recevoir mon lien</button>
       </form>
-      <aside class="generated-card" id="generated-card" aria-live="polite">
-        <p class="eyebrow">Page du registre</p>
-        <h3>Aucun nom couché sur le papier</h3>
-        <p>Remplissez le registre pour voir apparaître la fiche de votre voyageur.</p>
-        <div class="mj-note">
-          <h3>Ce que le maître de jeu complète ensuite</h3>
-          <p>Réputation, notoriété, contrats honorés, chroniques associées et dernière activité sont ajoutés après vos passages au Feu Dormant. Votre personnage reste indépendant de l'auberge : le registre sert seulement à ouvrir la porte au RP.</p>
-        </div>
-      </aside>
-    </section>
+      <p id="auth-message" class="auth-message" role="status" aria-live="polite"></p>
+    </div>
+  </section>
 
-    <section id="quetes" class="section">
-      <div class="section-heading">
-        <p class="eyebrow">Tableau des contrats</p>
-        <h2>Choisissez une piste, puis venez la jouer.</h2>
-      </div>
-      <div class="quest-toolbar" aria-label="Filtrer les quêtes">
-        <button class="filter active" type="button" data-filter="all">Toutes</button>
-        <button class="filter" type="button" data-filter="disponible">Disponibles</button>
-        <button class="filter" type="button" data-filter="encours">En cours</button>
-        <button class="filter" type="button" data-filter="terminee">Terminées</button>
-        <button class="filter" type="button" data-filter="archivee">Archivées</button>
-      </div>
-      <div class="quest-grid" id="quest-grid"></div>
-      <button id="toggle-quests" class="button secondary reveal-button" type="button" hidden>Dérouler le tableau</button>
-    </section>
-
-    <section class="section split-section">
-      <div>
-        <p class="eyebrow">Chroniques</p>
-        <h2>Les histoires doivent rester vivantes, pas devenir un musée.</h2>
-        <p>Les chroniques résument ce qui compte : quêtes terminées, changements de réputation, rumeurs confirmées, noms qui commencent à circuler.</p>
-      </div>
-      <aside class="notice-board">
-        <h3>Ce que l'on murmure près du feu</h3>
-        <ul id="rumor-list">
-          <li>Une carte humide aurait été payée trois fois trop cher.</li>
-          <li>Hector refuse de servir un client que personne ne voit.</li>
-          <li>La lanterne du perron ne s'éteint plus depuis trois nuits.</li>
-        </ul>
-        <button id="toggle-rumors" class="button secondary reveal-button" type="button" hidden>Écouter les autres murmures</button>
-      </aside>
-    </section>
-
-    <section id="reservations" class="section split-section reservation-section">
-      <div>
-        <p class="eyebrow">R&eacute;servations RP</p>
-        <h2>Retenez une clef avant que la nuit ne tombe.</h2>
-        <p>Choisissez une chambre, ajoutez les attentions voulues, puis envoyez la demande au personnel de l'auberge. La r&eacute;ponse se fera dans la salle commune.</p>
-        <div class="room-board" aria-label="Chambres disponibles">
-          <article class="room-card">
-            <div class="room-mark private">I</div>
-            <p class="eyebrow">Chambre I - Chambre priv&eacute;e</p>
-            <h3>Une porte ferm&eacute;e, un lit s&ucirc;r, le silence enfin retrouv&eacute;.</h3>
-            <p class="room-price">50 argent&eacute;es la nuit</p>
-            <p>Id&eacute;ale pour les voyageurs recherchant calme et discr&eacute;tion. Cette chambre ferm&eacute;e offre un espace priv&eacute;, confortable et propice au repos apr&egrave;s une longue journ&eacute;e de voyage.</p>
-            <ul class="room-includes">
-              <li>Chambre priv&eacute;e</li><li>Lit confortable</li><li>Ambiance paisible</li><li>Acc&egrave;s aux services de l'auberge</li>
-            </ul>
-            <p class="room-extra">Suppl&eacute;ment : petit-d&eacute;jeuner +10 argent&eacute;es.</p>
-            <dl class="room-rating"><div><dt>Intimit&eacute;</dt><dd>★★★★★</dd></div><div><dt>Confort</dt><dd>★★★☆☆</dd></div><div><dt>Prestige</dt><dd>★★☆☆☆</dd></div></dl>
-            <blockquote>Rien ne vaut une porte verrouill&eacute;e et un bon lit apr&egrave;s plusieurs jours sur les routes.</blockquote>
-          </article>
-
-          <article class="room-card">
-            <div class="room-mark">I</div>
-            <p class="eyebrow">Chambre I - Dortoir</p>
-            <h3>Le choix des aventuriers qui savent que la route commence rarement seul.</h3>
-            <p class="room-price">20 argent&eacute;es par lit et par nuit</p>
-            <p>Chaque pensionnaire dispose d'un lit, d'un coffre personnel et partage une ambiance chaleureuse o&ugrave; les rencontres sont souvent aussi m&eacute;morables que les voyages.</p>
-            <ul class="room-includes">
-              <li>Lit individuel</li><li>Coffre personnel</li><li>Espace commun</li><li>&Eacute;clairage permanent</li><li>Acc&egrave;s aux services de l'auberge</li>
-            </ul>
-            <div class="dorm-plan" aria-label="Plan simplifi&eacute; du dortoir">
-              <span class="bed private">1<br><small>Priv&eacute;</small></span>
-              <span class="bed">2<br><small>Dortoir</small></span>
-              <span class="bed">3<br><small>Dortoir</small></span>
-              <span class="bed">4<br><small>Dortoir</small></span>
-            </div>
-            <p class="room-extra">Suppl&eacute;ment : petit-d&eacute;jeuner +10 argent&eacute;es.</p>
-            <dl class="room-rating"><div><dt>Intimit&eacute;</dt><dd>★☆☆☆☆</dd></div><div><dt>Confort</dt><dd>★★☆☆☆</dd></div><div><dt>Prestige</dt><dd>★☆☆☆☆</dd></div></dl>
-            <blockquote>Les plus belles aventures commencent souvent dans un dortoir.</blockquote>
-          </article>
-
-          <article class="room-card">
-            <div class="room-mark">II</div>
-            <p class="eyebrow">Chambre II - Chambre individuelle</p>
-            <h3>Un refuge pour reprendre des forces, fermer les yeux et oublier la boue des chemins.</h3>
-            <p class="room-price">1 dor&eacute;e la nuit - jusqu'&agrave; 2 occupants</p>
-            <p>Une chambre spacieuse offrant davantage de confort. Son po&ecirc;le, son mobilier et son coin d&eacute;tente en font un excellent choix pour les s&eacute;jours prolong&eacute;s.</p>
-            <ul class="room-includes">
-              <li>Lit confortable</li><li>Po&ecirc;le de chauffage</li><li>Coin d&eacute;tente</li><li>Rangements</li><li>Table priv&eacute;e</li><li>&Eacute;clairage permanent</li>
-            </ul>
-            <p class="room-extra">Suppl&eacute;ment : petit-d&eacute;jeuner servi en chambre +10 argent&eacute;es.</p>
-            <dl class="room-rating"><div><dt>Intimit&eacute;</dt><dd>★★★★★</dd></div><div><dt>Confort</dt><dd>★★★★☆</dd></div><div><dt>Prestige</dt><dd>★★★☆☆</dd></div></dl>
-            <blockquote>Plus qu'une chambre, un refuge o&ugrave; reprendre des forces.</blockquote>
-          </article>
-
-          <article class="room-card prestige">
-            <div class="room-mark prestige">III</div>
-            <p class="eyebrow">Chambre III - Suite de prestige</p>
-            <h3>Une suite pour ceux qui ne cherchent pas seulement un toit, mais un foyer.</h3>
-            <p class="room-price">5 dor&eacute;es la nuit - jusqu'&agrave; 4 occupants</p>
-            <p>Le plus prestigieux h&eacute;bergement de l'Auberge du Feu Dormant : salon priv&eacute; avec chemin&eacute;e, chambre principale, seconde chambre et cadre luxueux pour les voyageurs exigeants.</p>
-            <ul class="room-includes">
-              <li>Chambre principale</li><li>Chambre secondaire</li><li>Grand salon avec chemin&eacute;e</li><li>Espace de r&eacute;ception</li><li>Biblioth&egrave;que</li><li>D&eacute;coration raffin&eacute;e</li><li>Table de r&eacute;ception</li><li>Suite enti&egrave;rement priv&eacute;e</li>
-            </ul>
-            <p class="room-extra">Suppl&eacute;ments : petit-d&eacute;jeuner +10 argent&eacute;es, majordome personnel +1 dor&eacute;e.</p>
-            <dl class="room-rating"><div><dt>Intimit&eacute;</dt><dd>★★★★★</dd></div><div><dt>Confort</dt><dd>★★★★★</dd></div><div><dt>Prestige</dt><dd>★★★★★</dd></div></dl>
-            <blockquote>Certaines chambres offrent un toit. Celle-ci offre un v&eacute;ritable foyer.</blockquote>
-          </article>
+  <div id="app-shell" class="app-frame">
+    <aside class="sidebar" aria-label="Navigation principale">
+      <div class="brand">
+        <span class="brand-mark">AFD</span>
+        <div>
+          <strong>Au Feu Dormant</strong>
+          <small>Console RP</small>
         </div>
       </div>
-      <form id="reservation-form" class="form-panel reservation-form">
-        <label>Nom du personnage
-          <input name="characterName" required maxlength="64" placeholder="Ex. Thorring">
-        </label>
-        <label>Chambre souhait&eacute;e
-          <select name="room" required>
-            <option value="">Choisir une chambre</option>
-            <option value="dortoir-prive-1">Chambre I - Lit priv&eacute; 1 - 50 argent&eacute;es la nuit</option>
-            <option value="dortoir-lit-2">Chambre I - Lit dortoir 2 - 20 argent&eacute;es la nuit</option>
-            <option value="dortoir-lit-3">Chambre I - Lit dortoir 3 - 20 argent&eacute;es la nuit</option>
-            <option value="dortoir-lit-4">Chambre I - Lit dortoir 4 - 20 argent&eacute;es la nuit</option>
-            <option value="chambre-ii">Chambre II, individuelle - 1 dor&eacute;e</option>
-            <option value="chambre-iii">Chambre III, luxe - 5 dor&eacute;es</option>
-          </select>
-        </label>
-        <label>Date d'arriv&eacute;e RP
-          <input name="arrivalDate" maxlength="80" placeholder="Ex. Ce soir apr&egrave;s la patrouille">
-        </label>
-        <label>Dur&eacute;e du s&eacute;jour
-          <select name="duration">
-            <option value="1">Une nuit</option>
-            <option value="2">Deux nuits</option>
-            <option value="3">Trois nuits</option>
-            <option value="7">Une semaine</option>
-            <option value="indetermine">S&eacute;jour ind&eacute;termin&eacute; - tarif &agrave; la nuit</option>
-          </select>
-        </label>
-        <label>Nombre d'occupants
-          <input name="occupants" type="number" min="1" max="1" value="1">
-        </label>
-        <div id="room-access-fields" class="room-access-fields" hidden>
-          <label>Liste blanche de la chambre
-            <textarea name="allowedGuests" maxlength="600" placeholder="Noms des personnes autoris&eacute;es &agrave; entrer pendant l'occupation. Une personne par ligne si possible."></textarea>
-          </label>
-          <label>Garde du corps
-            <select name="bodyguard">
-              <option value="Aucun">Aucun garde du corps</option>
-              <option value="Accompagne">Un garde du corps accompagne la personne</option>
-              <option value="Sur demande">Garde du corps souhait&eacute; sur demande</option>
-            </select>
-          </label>
-          <label>Renseignement sur l'escorte
-            <textarea name="bodyguardDetails" maxlength="500" placeholder="Nom, faction, consignes, horaires, discr&eacute;tion demand&eacute;e..."></textarea>
-          </label>
+
+      <nav class="nav-list">
+        <button data-view="dashboard" class="active">Vue generale</button>
+        <button data-view="player">Ma fiche</button>
+        <button data-view="skills">Competences</button>
+        <button data-view="talents">Talents</button>
+        <button data-view="quests">Quetes</button>
+        <button data-view="factions">Allegeances</button>
+        <button data-view="vault">Coffre</button>
+        <button data-view="requests">Demandes MJ</button>
+        <button data-view="gm">Atelier MJ</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p id="connection-status" class="connection-status">Mode local</p>
+        <button class="ghost-button" data-sign-out hidden>Se deconnecter</button>
+        <button class="ghost-button" data-export>Exporter</button>
+        <button class="ghost-button danger" data-reset>Reinitialiser</button>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="view-kicker">Prototype V2</p>
+          <h1 id="view-title">Tableau de bord RP</h1>
         </div>
-        <fieldset class="form-fieldset">
-          <legend>Suppl&eacute;ments RP</legend>
-          <label class="check-row">
-            <input name="breakfast" type="checkbox" value="1">
-            <span>Petit-d&eacute;jeuner - 10 argent&eacute;es par occupant et par nuit</span>
+        <div class="mode-switch" aria-label="Mode actif">
+          <label class="character-switcher">Fiche active
+            <select id="character-switcher" data-active-character></select>
           </label>
-          <label id="majordomo-option" class="check-row">
-            <input name="majordomo" type="checkbox" value="1">
-            <span>Service d'un Majordome - 1 dor&eacute;e par s&eacute;jour</span>
-          </label>
-        </fieldset>
-        <label>Demandes particuli&egrave;res
-          <textarea name="requests" maxlength="600" placeholder="Ex. Chambre discr&egrave;te, table pr&egrave;s du feu, aucun visiteur apr&egrave;s minuit..."></textarea>
-        </label>
-        <label>Commentaire libre
-          <textarea name="comment" maxlength="800" placeholder="Un mot au personnel de l'auberge."></textarea>
-        </label>
-        <label>Signature RP
-          <input name="signature" required maxlength="64" placeholder="Nom du personnage">
-        </label>
-        <aside class="reservation-total" aria-live="polite">
-          <p class="eyebrow">Co&ucirc;t estim&eacute;</p>
-          <strong id="reservation-total">0 argent&eacute;e</strong>
-          <p id="reservation-detail">Choisissez une chambre pour commencer le calcul.</p>
-        </aside>
-        <p id="reservation-status" class="form-status" role="status" aria-live="polite"></p>
-        <button class="button primary" type="submit">R&eacute;server</button>
-      </form>
-    </section>
+          <button type="button" data-role="player" class="active">Joueur</button>
+          <button type="button" data-role="gm">MJ</button>
+        </div>
+      </header>
 
-    <section id="rejoindre" class="section join">
-      <p class="eyebrow">Pousser la porte</p>
-      <h2>Votre personnage attend une table.</h2>
-      <p>La salle commune s'organise autour du feu. C'est là que les voyageurs se retrouvent, prennent des nouvelles et répondent aux appels d'Hector.</p>
-      <a class="button primary large" href="https://discord.gg/atbfrdFfNr" target="_blank" rel="noopener">Entrer dans la salle commune</a>
-      <p class="small-note">La porte s'ouvre par l'invitation Discord officielle.</p>
-    </section>
-  </main>
+      <section id="main-panel" class="main-panel" tabindex="-1"></section>
+    </main>
 
-  <footer class="site-footer">
-    <p>Au Feu Dormant — portail RP fantasy non officiel. Aucun asset Blizzard n'est utilisé.</p>
-    <span class="footer-links">
-      <a class="backroom-link" href="arriere-salle.html">Acc&eacute;der &agrave; l'Arri&egrave;re-salle</a>
-      <a href="#accueil">Retour au feu</a>
-    </span>
-  </footer>
+    <aside id="context-panel" class="context-panel" aria-label="Contexte"></aside>
+  </div>
+
+  <div id="modal-root" class="modal-root"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase-config.js"></script>
-  <script src="js/supabase-store.js"></script>
-  <script src="js/script.js"></script>
+  <script src="assets/js/data.js?v=2026071601"></script>
+    <script src="assets/js/online.js?v=2026071602"></script>
+    <script src="assets/js/app.js?v=2026071602"></script>
 </body>
 </html>

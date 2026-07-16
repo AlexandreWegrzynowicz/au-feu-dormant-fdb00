@@ -2,12 +2,22 @@
   publish = "."
   functions = "netlify/functions"
 
-[[headers]]
-  for = "/mj.html"
-  [headers.values]
-    X-Robots-Tag = "noindex"
+[functions]
+  node_bundler = "esbuild"
+
+[functions."close-auctions"]
+  schedule = "*/15 * * * *"
 
 [[headers]]
-  for = "/arriere-salle.html"
+  for = "/*"
   [headers.values]
-    X-Robots-Tag = "noindex"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; font-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
