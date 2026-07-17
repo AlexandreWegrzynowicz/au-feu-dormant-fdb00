@@ -569,11 +569,17 @@ document.addEventListener("click", (event) => {
   }
 
   if (event.target.closest("[data-export]")) exportState();
-  if (event.target.closest("[data-reset]")) confirmAction("Reinitialiser le prototype ?", () => {
-    state = resetState();
-    currentView = "dashboard";
-    render();
-  });
+  if (event.target.closest("[data-reset]")) {
+    if (!isStaff()) {
+      toast("Acces reserve aux maitres de jeu.");
+      return;
+    }
+    confirmAction("Reinitialiser le prototype ?", () => {
+      state = resetState();
+      currentView = "dashboard";
+      render();
+    });
+  }
 
   if (event.target.closest("[data-player-new-character]")) openPlayerCharacterCreator();
 
@@ -872,6 +878,9 @@ function render() {
   document.querySelectorAll("[data-role]").forEach(button => button.classList.toggle("active", button.dataset.role === state.role));
   document.querySelectorAll('[data-view="gm"], [data-view="requests"], [data-role="gm"]').forEach(button => {
     button.hidden = isOnline() && !isStaff();
+  });
+  document.querySelectorAll("[data-staff-only]").forEach(element => {
+    element.hidden = !isStaff();
   });
   renderCharacterSwitcher();
   document.getElementById("view-kicker").textContent = viewTitles[currentView][0];
